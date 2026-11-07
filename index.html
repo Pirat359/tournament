@@ -78,15 +78,36 @@
   button.secondary:hover { background: #475569; box-shadow: none; }
   button.danger { background: #dc2626; }
   button.danger:hover { background: #ef4444; }
-  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
 
-  /* ====== STAR RATING ====== */
-  .star-rating { display: inline-flex; gap: 2px; cursor: pointer; user-select: none; }
-  .star-rating .star { font-size: 1.1rem; color: #334155; transition: color 0.15s, transform 0.15s; line-height: 1; }
-  .star-rating .star.filled { color: #fbbf24; }
-  .star-rating .star.hover { color: #fde68a; transform: scale(1.15); }
+  /* ====== STAR RATING (ДРОБНЫЙ) ====== */
+  .star-rating { 
+    display: inline-flex; 
+    gap: 2px; 
+    cursor: pointer; 
+    user-select: none; 
+  }
+  .star-rating .star {
+    font-size: 1.2rem;
+    color: #334155;
+    position: relative;
+    line-height: 1;
+    transition: transform 0.1s;
+  }
+  .star-rating .star:hover { transform: scale(1.1); }
+  
+  /* Слой с золотыми звездами */
+  .star-rating .star-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    color: #fbbf24;
+    pointer-events: none;
+  }
+
   .star-rating.readonly .star { pointer-events: none; }
 
   /* ====== ADD FORM ====== */
@@ -108,9 +129,10 @@
     align-items: center;
     gap: 10px;
   }
-  .rating-input-wrap label { margin: 0; font-size: 0.75rem; }
+  .rating-input-wrap label { margin: 0; font-size: 0.75rem; white-space: nowrap; }
+  .rating-value-display { color: #fbbf24; font-weight: bold; min-width: 30px; text-align: right; }
 
-  /* ====== PLAYERS LIST (виртуализированный) ====== */
+  /* ====== PLAYERS LIST ====== */
   .players-toolbar {
     display: flex;
     gap: 10px;
@@ -123,11 +145,7 @@
     border: 1px solid #334155;
   }
   .players-toolbar input[type="search"] { flex: 1; min-width: 200px; }
-  .players-toolbar .stat {
-    color: #94a3b8;
-    font-size: 0.85rem;
-    white-space: nowrap;
-  }
+  .players-toolbar .stat { color: #94a3b8; font-size: 0.85rem; white-space: nowrap; }
   .players-toolbar .stat strong { color: #60a5fa; }
 
   .players-viewport {
@@ -163,6 +181,7 @@
     flex-shrink: 0;
   }
   .player-row .name { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .player-row .rating-val { color: #fbbf24; font-size: 0.85rem; font-weight: bold; min-width: 30px; text-align: right; margin-right: 5px; }
   .player-row .remove {
     cursor: pointer;
     color: #f87171;
@@ -174,130 +193,51 @@
   }
   .player-row .remove:hover { background: rgba(239,68,68,0.2); color: #ef4444; }
 
-  .empty-list {
-    text-align: center;
-    padding: 30px;
-    color: #64748b;
-    font-size: 0.9rem;
-  }
+  .empty-list { text-align: center; padding: 30px; color: #64748b; font-size: 0.9rem; }
 
   /* ====== BRACKET ====== */
   .bracket-toolbar {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
-    padding: 10px;
-    background: #0f172a;
-    border-radius: 8px;
-    border: 1px solid #334155;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 12px; padding: 10px; background: #0f172a;
+    border-radius: 8px; border: 1px solid #334155;
   }
   .bracket-toolbar .stat { color: #94a3b8; font-size: 0.85rem; }
   .bracket-toolbar .stat strong { color: #60a5fa; }
   .bracket-toolbar input[type="search"] { flex: 1; min-width: 180px; max-width: 300px; }
 
   .zoom-controls { display: flex; gap: 4px; align-items: center; }
-  .zoom-controls button {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    min-width: 32px;
-  }
-  .zoom-controls .zoom-label {
-    padding: 0 8px;
-    color: #94a3b8;
-    font-size: 0.8rem;
-    min-width: 45px;
-    text-align: center;
-  }
+  .zoom-controls button { padding: 5px 10px; font-size: 0.8rem; min-width: 32px; }
+  .zoom-controls .zoom-label { padding: 0 8px; color: #94a3b8; font-size: 0.8rem; min-width: 45px; text-align: center; }
 
   .bracket-viewport {
-    overflow: auto;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    background: #0f172a;
-    height: 600px;
-    position: relative;
-    user-select: none;
+    overflow: auto; border: 1px solid #334155; border-radius: 8px;
+    background: #0f172a; height: 600px; position: relative; user-select: none;
   }
-  .bracket-content {
-    position: relative;
-    transform-origin: 0 0;
-  }
-  .bracket {
-    display: flex;
-    gap: 24px;
-    padding: 16px;
-    min-width: min-content;
-  }
-  .round {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    gap: 4px;
-    min-width: 170px;
-    flex-shrink: 0;
-  }
-  .round-title {
-    text-align: center;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    color: #64748b;
-    margin-bottom: 6px;
-    letter-spacing: 1px;
-    position: sticky;
-    top: 0;
-    background: #0f172a;
-    padding: 4px 0;
-    z-index: 2;
-  }
-  .round-count {
-    text-align: center;
-    font-size: 0.65rem;
-    color: #475569;
-    margin-bottom: 6px;
-  }
-  .match {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-  .match-slot {
-    padding: 5px 8px;
-    font-size: 0.78rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    border-bottom: 1px solid #334155;
-    cursor: pointer;
-    transition: background 0.1s;
-    min-height: 26px;
-  }
+  .bracket-content { position: relative; transform-origin: 0 0; }
+  .bracket { display: flex; gap: 24px; padding: 16px; min-width: min-content; }
+  
+  .round { display: flex; flex-direction: column; justify-content: space-around; gap: 4px; min-width: 170px; flex-shrink: 0; }
+  .round-title { text-align: center; font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-bottom: 6px; letter-spacing: 1px; position: sticky; top: 0; background: #0f172a; padding: 4px 0; z-index: 2; }
+  .round-count { text-align: center; font-size: 0.65rem; color: #475569; margin-bottom: 6px; }
+  
+  .match { background: #1e293b; border: 1px solid #334155; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .match-slot { padding: 5px 8px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; gap: 6px; border-bottom: 1px solid #334155; cursor: pointer; transition: background 0.1s; min-height: 26px; }
   .match-slot:last-child { border-bottom: none; }
   .match-slot:hover { background: #273449; }
   .match-slot.winner { background: rgba(34,197,94,0.12); color: #86efac; }
   .match-slot.winner .slot-name::after { content: ' ✓'; color: #22c55e; }
   .match-slot.empty { color: #475569; font-style: italic; }
-  .match-slot .slot-name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  .match-slot .slot-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  
   .match-slot .stars-mini { display: flex; gap: 0; flex-shrink: 0; }
-  .match-slot .stars-mini .star { font-size: 0.6rem; color: #334155; }
-  .match-slot .stars-mini .star.filled { color: #fbbf24; }
+  .match-slot .stars-mini .star { font-size: 0.6rem; color: #334155; position: relative; }
+  .match-slot .stars-mini .star-fill { position: absolute; top: 0; left: 0; height: 100%; overflow: hidden; color: #fbbf24; }
 
-  /* Компактный режим для больших сеток */
+  /* Компактный режим */
   .bracket.compact .match-slot { padding: 3px 6px; font-size: 0.7rem; min-height: 20px; }
   .bracket.compact .round { min-width: 130px; gap: 2px; }
   .bracket.compact .bracket { gap: 14px; }
   .bracket.compact .match-slot .stars-mini { display: none; }
-
   .bracket.ultra-compact .match-slot { padding: 2px 5px; font-size: 0.65rem; min-height: 16px; }
   .bracket.ultra-compact .round { min-width: 110px; gap: 1px; }
   .bracket.ultra-compact .bracket { gap: 10px; }
@@ -307,96 +247,37 @@
   .match-slot.highlight { background: rgba(251,191,36,0.2); }
 
   /* Status */
-  .status {
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: 0.88rem;
-    display: none;
-  }
+  .status { padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.88rem; display: none; }
   .status.show { display: block; }
   .status.info { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
   .status.success { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
   .status.warn { background: rgba(251,191,36,0.15); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
   .status.error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
 
-  .winner-banner {
-    text-align: center;
-    padding: 25px;
-    background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.05));
-    border: 1px solid rgba(251,191,36,0.3);
-    border-radius: 12px;
-    margin-top: 20px;
-    display: none;
-  }
+  .winner-banner { text-align: center; padding: 25px; background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.05)); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px; margin-top: 20px; display: none; }
   .winner-banner.show { display: block; }
   .winner-banner h2 { color: #fbbf24; margin-bottom: 10px; font-size: 1.3rem; }
-  .winner-banner .champion {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #fde68a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
+  .winner-banner .champion { font-size: 1.5rem; font-weight: bold; color: #fde68a; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
   .empty-state h3 { color: #94a3b8; margin-bottom: 10px; }
 
   .tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #334155; flex-wrap: wrap; }
-  .tab {
-    padding: 10px 18px;
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    font-weight: 600;
-    border-radius: 0;
-    font-size: 0.9rem;
-  }
+  .tab { padding: 10px 18px; background: transparent; border: none; color: #94a3b8; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 600; border-radius: 0; font-size: 0.9rem; }
   .tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
   .tab:hover { background: rgba(96,165,250,0.05); transform: none; box-shadow: none; }
 
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  .controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 15px;
-    align-items: end;
-  }
+  .controls { display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end; }
   @media (max-width: 768px) { .controls { grid-template-columns: 1fr; } }
 
-  .progress-bar {
-    height: 4px;
-    background: #334155;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 10px;
-    display: none;
-  }
+  .progress-bar { height: 4px; background: #334155; border-radius: 2px; overflow: hidden; margin-top: 10px; display: none; }
   .progress-bar.show { display: block; }
-  .progress-bar .fill {
-    height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-    width: 0%;
-    transition: width 0.2s;
-  }
+  .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); width: 0%; transition: width 0.2s; }
 
-  .info-hint {
-    background: rgba(96,165,250,0.08);
-    border: 1px solid rgba(96,165,250,0.2);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 0.82rem;
-    color: #93c5fd;
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
+  .info-hint { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #93c5fd; margin-bottom: 12px; line-height: 1.5; }
   .info-hint strong { color: #bfdbfe; }
 </style>
 </head>
@@ -404,7 +285,7 @@
 <div class="container">
   <header>
     <h1>🏆 Турнирный Генератор</h1>
-    <p>Поддержка 1000+ команд · рейтинг 5 звёзд · посев · виртуализация</p>
+    <p>Поддержка 1000+ команд · дробный рейтинг · посев · виртуализация</p>
   </header>
 
   <div class="panel">
@@ -458,7 +339,7 @@
     <!-- PLAYERS -->
     <div class="tab-content" id="tab-players">
       <div class="info-hint">
-        💡 <strong>Совет для 1000+ команд:</strong> используйте «Массово» — вставьте список, каждый с новой строки в формате <code>Имя,звёзды</code>. Рейтинг по умолчанию — 3★.
+        💡 <strong>Совет:</strong> используйте «Массово» — вставьте список в формате <code>Имя,рейтинг</code> (например, <code>Команда А,3.5</code>). Если не указать — будет 3.0★.
       </div>
 
       <label>Добавить участника / команду</label>
@@ -467,12 +348,9 @@
         <div class="rating-input-wrap">
           <label>Рейтинг:</label>
           <div class="star-rating" id="newPlayerRating" data-rating="3">
-            <span class="star" data-value="1">★</span>
-            <span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span>
-            <span class="star" data-value="4">★</span>
-            <span class="star" data-value="5">★</span>
+            <!-- Звезды будут сгенерированы в JS -->
           </div>
+          <span class="rating-value-display" id="newRatingValue">3.0</span>
         </div>
         <button id="addPlayerBtn">+ Добавить</button>
       </div>
@@ -482,7 +360,7 @@
         <button class="secondary" id="demoBtn">🎯 Демо 1000 команд</button>
         <button class="secondary danger" id="clearPlayersBtn" style="margin-left:auto;">Очистить всех</button>
       </div>
-      <textarea id="bulkInput" placeholder="Иван Петров,4&#10;Мария Сидорова,5&#10;Алексей Смирнов,2" style="display:none; margin-bottom:10px;"></textarea>
+      <textarea id="bulkInput" placeholder="Иван Петров,4.5&#10;Мария Сидорова,5&#10;Алексей Смирнов,2.5" style="display:none; margin-bottom:10px;"></textarea>
 
       <div class="players-toolbar">
         <input type="search" id="searchPlayers" placeholder="🔍 Поиск по имени...">
@@ -539,15 +417,14 @@ let state = {
   tournamentName: '',
   bracketSize: 'auto',
   renderMode: 'virtual',
-  players: [],          // [{name, rating}]
-  bracket: null,        // {rounds: [[...]], size}
+  players: [],          // [{name, rating}] где rating - число с плавающей точкой (1.0 - 5.0)
+  bracket: null,
   champion: null,
   zoom: 1
 };
 
-// Индексы для быстрого поиска
-let playerIndex = new Map();  // name -> player object
-let bracketPlayerLocations = new Map(); // name -> [{r, m, slot}]
+let playerIndex = new Map();
+let bracketPlayerLocations = new Map();
 
 // ==================== UTILS ====================
 function escapeHtml(s) {
@@ -578,34 +455,87 @@ function switchTab(name) {
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ==================== STAR WIDGET ====================
+// ==================== STAR WIDGET (ДРОБНЫЙ) ====================
+// Отрисовывает 5 звезд, каждая может быть залита на 0%, 50% или 100%
+function buildStarsHtml(rating) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    let fill = 0;
+    if (rating >= i) fill = 100;           // полная звезда
+    else if (rating > i - 1) fill = 50;    // половинка
+    else fill = 0;                         // пустая
+
+    html += `<div class="star" data-index="${i}">
+      ★<div class="star-fill" style="width: ${fill}%">★</div>
+    </div>`;
+  }
+  return html;
+}
+
 function initStarWidget(el, initial = 3, onChange = null) {
+  el.innerHTML = buildStarsHtml(initial);
   el.dataset.rating = initial;
-  const stars = el.querySelectorAll('.star');
-  function paint(r) {
-    stars.forEach((s, i) => {
-      s.classList.toggle('filled', i < r);
-      s.classList.remove('hover');
+
+  // Обновляем визуальную часть
+  function updateVisual(val) {
+    el.dataset.rating = val;
+    const stars = el.querySelectorAll('.star');
+    stars.forEach((starEl, idx) => {
+      const i = idx + 1;
+      let fill = 0;
+      if (val >= i) fill = 100;
+      else if (val > i - 1) fill = 50;
+      
+      const fillEl = starEl.querySelector('.star-fill');
+      if (fillEl) fillEl.style.width = fill + '%';
     });
   }
-  paint(initial);
-  stars.forEach((star, idx) => {
-    star.addEventListener('mouseenter', () => {
-      stars.forEach((s, i) => {
-        s.classList.toggle('hover', i <= idx);
-        s.classList.toggle('filled', i <= idx);
-      });
+
+  // Обработчик клика
+  el.onclick = (e) => {
+    const starEl = e.target.closest('.star');
+    if (!starEl) return;
+    const index = parseInt(starEl.dataset.index);
+    
+    // Определяем, куда кликнули (левая половина или правая)
+    const rect = starEl.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const isLeftHalf = clickX < rect.width / 2;
+    
+    // Если левая половина - ставим 0.5, правая - 1.0
+    const newVal = isLeftHalf ? index - 0.5 : index;
+    
+    updateVisual(newVal);
+    if (onChange) onChange(newVal);
+  };
+
+  // Эффект наведения (подсветка)
+  el.onmousemove = (e) => {
+    const starEl = e.target.closest('.star');
+    if (!starEl) return;
+    
+    const index = parseInt(starEl.dataset.index);
+    const rect = starEl.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const isLeftHalf = clickX < rect.width / 2;
+    const hoverVal = isLeftHalf ? index - 0.5 : index;
+
+    const stars = el.querySelectorAll('.star');
+    stars.forEach((s, idx) => {
+      const i = idx + 1;
+      let fill = 0;
+      if (hoverVal >= i) fill = 100;
+      else if (hoverVal > i - 1) fill = 50;
+
+      const fillEl = s.querySelector('.star-fill');
+      if (fillEl) fillEl.style.width = fill + '%';
     });
-    star.addEventListener('mouseleave', () => paint(parseInt(el.dataset.rating)));
-    star.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const val = idx + 1;
-      el.dataset.rating = val;
-      paint(val);
-      if (onChange) onChange(val);
-    });
-  });
-  el.addEventListener('mouseleave', () => paint(parseInt(el.dataset.rating)));
+  };
+
+  // Возврат к текущему значению, если увели мышку
+  el.onmouseleave = () => {
+    updateVisual(parseFloat(el.dataset.rating));
+  };
 }
 
 // ==================== TABS ====================
@@ -616,15 +546,14 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
     if (tab.dataset.tab === 'bracket' && state.bracket) {
-      // Перерисовать после переключения (для правильных размеров)
       requestAnimationFrame(() => renderBracketView());
     }
   });
 });
 
-// ==================== PLAYERS LIST (виртуализация) ====================
+// ==================== PLAYERS LIST ====================
 const ROW_HEIGHT = 48;
-let filteredPlayers = [];  // отфильтрованный список
+let filteredPlayers = [];
 let playersViewport, playersSpacer, searchPlayersInput;
 
 function updatePlayerIndex() {
@@ -659,10 +588,8 @@ function renderPlayersViewport() {
     emptyList.style.display = 'none';
   }
 
-  // Удаляем все строки
   playersSpacer.querySelectorAll('.player-row').forEach(r => r.remove());
 
-  // Отрисовываем только видимые
   const scrollTop = playersViewport.scrollTop;
   const viewH = playersViewport.clientHeight;
   const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - 2);
@@ -671,30 +598,34 @@ function renderPlayersViewport() {
   const frag = document.createDocumentFragment();
   for (let i = startIdx; i < endIdx; i++) {
     const p = filteredPlayers[i];
-    const realIdx = state.players.indexOf(p); // для корректного удаления
+    const realIdx = state.players.indexOf(p);
     const row = document.createElement('div');
     row.className = 'player-row';
     row.style.top = (i * ROW_HEIGHT) + 'px';
     row.innerHTML = `
       <span class="seed">#${realIdx + 1}</span>
       <span class="name">${escapeHtml(p.name)}</span>
+      <span class="rating-val">${p.rating.toFixed(1)}★</span>
       <span class="rating-mount"></span>
       <span class="remove" data-idx="${realIdx}" title="Удалить">×</span>
     `;
     const mount = row.querySelector('.rating-mount');
     const widget = document.createElement('div');
     widget.className = 'star-rating';
-    widget.innerHTML = '<span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>';
     mount.appendChild(widget);
+    
+    // Инициализируем виджет и обновляем значение при изменении
     initStarWidget(widget, p.rating, (val) => {
       p.rating = val;
+      row.querySelector('.rating-val').textContent = val.toFixed(1) + '★';
       updateStats();
+      saveToStorage();
     });
+
     frag.appendChild(row);
   }
   playersSpacer.appendChild(frag);
 
-  // Обработчик удаления через делегирование
   playersSpacer.onclick = (e) => {
     const rm = e.target.closest('.remove');
     if (rm) {
@@ -731,14 +662,18 @@ function updateStats() {
 
 // ==================== ADD PLAYERS ====================
 const newPlayerRating = document.getElementById('newPlayerRating');
-initStarWidget(newPlayerRating, 3);
+const newRatingValue = document.getElementById('newRatingValue');
+
+initStarWidget(newPlayerRating, 3.0, (val) => {
+  newRatingValue.textContent = val.toFixed(1);
+});
 
 function addPlayer() {
   const input = document.getElementById('playerInput');
   const name = input.value.trim();
   if (!name) return;
   if (playerIndex.has(name)) { showStatus('Такая команда уже есть!', 'warn'); return; }
-  const rating = parseInt(newPlayerRating.dataset.rating) || 3;
+  const rating = parseFloat(newPlayerRating.dataset.rating) || 3.0;
   state.players.push({ name, rating });
   playerIndex.set(name, state.players[state.players.length - 1]);
   input.value = '';
@@ -765,9 +700,12 @@ document.getElementById('bulkInput').addEventListener('blur', (e) => {
   lines.forEach(line => {
     const parts = line.split(',').map(s => s.trim());
     const name = parts[0];
-    let rating = parseInt(parts[1]);
-    if (isNaN(rating) || rating < 1) rating = 3;
-    if (rating > 5) rating = 5;
+    let rating = parseFloat(parts[1]);
+    if (isNaN(rating) || rating < 0.5) rating = 3.0;
+    if (rating > 5.0) rating = 5.0;
+    // Округляем до ближайших 0.5
+    rating = Math.round(rating * 2) / 2;
+
     if (name && !playerIndex.has(name)) {
       const p = { name, rating };
       state.players.push(p);
@@ -793,10 +731,9 @@ document.getElementById('clearPlayersBtn').addEventListener('click', () => {
   }
 });
 
-// Демо 1000 команд
 document.getElementById('demoBtn').addEventListener('click', () => {
   if (state.players.length > 0) {
-    if (!confirm('Это добавит ещё 1000 демо-команд к текущему списку. Продолжить?')) return;
+    if (!confirm('Это добавит ещё 1000 демо-команд. Продолжить?')) return;
   }
   const prefixes = ['ФК', 'FC', 'Динамо', 'Спартак', 'ЦСКА', 'Локомотив', 'Зенит', 'Рубин', 'Ахмат', 'Крылья'];
   const cities = ['Москва', 'Питер', 'Казань', 'Сочи', 'Ростов', 'Уфа', 'Омск', 'Томск', 'Пермь', 'Тула', 'Самара', 'Волга', 'Урал', 'Сибирь', 'Восток'];
@@ -804,7 +741,8 @@ document.getElementById('demoBtn').addEventListener('click', () => {
   const batch = [];
   for (let i = 0; i < 1000; i++) {
     const name = `${prefixes[i % prefixes.length]} ${cities[(i * 7) % cities.length]}-${Math.floor(i / prefixes.length) + 1}`;
-    const rating = 1 + Math.floor(Math.random() * 5);
+    // Случайный рейтинг от 0.5 до 5.0 с шагом 0.5
+    const rating = (1 + Math.floor(Math.random() * 9)) / 2;
     if (!playerIndex.has(name)) {
       batch.push({ name, rating });
     }
@@ -838,13 +776,12 @@ function generateBracket(mode = 'auto') {
   }
 
   if (size > 4096) {
-    showStatus(`Слишком большой размер сетки: ${size}. Максимум — 4096.`, 'error');
+    showStatus(`Слишком большой размер: ${size}. Максимум — 4096.`, 'error');
     return;
   }
 
-  showStatus('Генерация сетки... Пожалуйста, подождите.', 'info', 2000);
+  showStatus('Генерация сетки...', 'info', 2000);
 
-  // Используем setTimeout чтобы дать UI обновиться
   setTimeout(() => {
     let orderedPlayers;
     if (mode === 'seeded') {
@@ -878,7 +815,6 @@ function generateBracket(mode = 'auto') {
       count = next.length;
     }
 
-    // Автопроход bye
     for (let i = 0; i < round1.length; i++) {
       const m = round1[i];
       if (m.winner) {
@@ -935,15 +871,9 @@ function buildBracketIndex() {
   });
 }
 
-// ==================== BRACKET RENDER (виртуализация) ====================
-const CARD_H = 54;    // базовая высота матча
-const CARD_GAP = 6;   // базовый отступ
-
-function computeLayout(size) {
-  // Вычисляем высоту раунда и позиции матчей
-  const totalH = Math.max(600, size * (CARD_H + CARD_GAP) * 0.5);
-  return totalH;
-}
+// ==================== BRACKET RENDER ====================
+const CARD_H = 54;
+const CARD_GAP = 6;
 
 function renderBracketView() {
   const viewport = document.getElementById('bracketViewport');
@@ -967,19 +897,14 @@ function renderBracketView() {
   document.getElementById('bracketSizeInfo').textContent = size + ' мест';
   document.getElementById('matchCount').textContent = (size - 1);
 
-  // Применяем масштаб
   content.style.transform = `scale(${state.zoom})`;
 
-  // Выбираем класс компактности
   bracketEl.className = 'bracket';
   if (size >= 512) bracketEl.classList.add('ultra-compact');
   else if (size >= 128) bracketEl.classList.add('compact');
 
-  // Если сетка огромная — используем "сжатую" высоту
   const effectiveCardH = size >= 512 ? 18 : (size >= 128 ? 24 : CARD_H);
   const effectiveGap = size >= 512 ? 1 : (size >= 128 ? 2 : CARD_GAP);
-
-  // Общая высота первого раунда
   const round1H = (size / 2) * (effectiveCardH + effectiveGap);
 
   bracketEl.innerHTML = '';
@@ -1015,7 +940,6 @@ function renderBracketView() {
     bracketEl.appendChild(roundDiv);
   });
 
-  // Обработчик клика (делегирование)
   bracketEl.onclick = (e) => {
     const slot = e.target.closest('.match-slot');
     if (!slot) return;
@@ -1041,17 +965,20 @@ function createSlot(player, isWinner, r, mi, slotType) {
   const nameSpan = document.createElement('span');
   nameSpan.className = 'slot-name';
   nameSpan.textContent = player ? player.name : '—';
-
   div.appendChild(nameSpan);
 
-  // Звёзды только для маленьких сеток (оптимизация)
   if (player && state.bracket.size < 128) {
     const stars = document.createElement('div');
     stars.className = 'stars-mini';
+    // Используем ту же логику дробных звезд
     for (let i = 1; i <= 5; i++) {
-      const s = document.createElement('span');
-      s.className = 'star' + (i <= player.rating ? ' filled' : '');
-      s.textContent = '★';
+      let fill = 0;
+      if (player.rating >= i) fill = 100;
+      else if (player.rating > i - 1) fill = 50;
+      
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.innerHTML = `★<div class="star-fill" style="width:${fill}%">★</div>`;
       stars.appendChild(s);
     }
     div.appendChild(stars);
@@ -1091,7 +1018,6 @@ function advanceWinner(roundIdx, matchIdx, winner) {
   const match = bracket.rounds[roundIdx][matchIdx];
   match.winner = winner;
 
-  // Обновляем следующий раунд
   if (roundIdx + 1 < bracket.rounds.length) {
     const nextMi = Math.floor(matchIdx / 2);
     const nextMatch = bracket.rounds[roundIdx + 1][nextMi];
@@ -1104,11 +1030,9 @@ function advanceWinner(roundIdx, matchIdx, winner) {
     state.champion = winner;
   }
 
-  // Локально обновляем DOM вместо полного рендера
   updateMatchDOM(roundIdx, matchIdx);
   if (roundIdx + 1 < bracket.rounds.length) {
     updateMatchDOM(roundIdx + 1, Math.floor(matchIdx / 2));
-    // Обновить дальше только если были изменения
     updateNextMatches(roundIdx + 1, Math.floor(matchIdx / 2));
   }
   if (state.champion) showChampion();
@@ -1149,15 +1073,19 @@ function updateSlot(slot, player, isWinner) {
   slot.classList.toggle('empty', !player);
   const nameEl = slot.querySelector('.slot-name');
   nameEl.textContent = player ? player.name : '—';
-  // Обновляем звёзды если есть
+  
   const stars = slot.querySelector('.stars-mini');
   if (stars) {
     if (player) {
       stars.innerHTML = '';
       for (let i = 1; i <= 5; i++) {
-        const s = document.createElement('span');
-        s.className = 'star' + (i <= player.rating ? ' filled' : '');
-        s.textContent = '★';
+        let fill = 0;
+        if (player.rating >= i) fill = 100;
+        else if (player.rating > i - 1) fill = 50;
+        
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.innerHTML = `★<div class="star-fill" style="width:${fill}%">★</div>`;
         stars.appendChild(s);
       }
     } else {
@@ -1167,7 +1095,6 @@ function updateSlot(slot, player, isWinner) {
 }
 
 function updateNextMatches(roundIdx, matchIdx) {
-  // Проходим до финала, обновляя связанные матчи
   let r = roundIdx, mi = matchIdx;
   while (r + 1 < state.bracket.rounds.length) {
     const nextMi = Math.floor(mi / 2);
@@ -1183,15 +1110,18 @@ function showChampion() {
   const nameEl = document.getElementById('championName');
   banner.classList.add('show');
   nameEl.innerHTML = `<span>${escapeHtml(state.champion.name)}</span>`;
-  // Добавляем звёзды
+  
   const stars = document.createElement('div');
   stars.className = 'star-rating readonly';
+  // Генерируем звезды для чемпиона
+  let starsHtml = '';
   for (let i = 1; i <= 5; i++) {
-    const s = document.createElement('span');
-    s.className = 'star' + (i <= state.champion.rating ? ' filled' : '');
-    s.textContent = '★';
-    stars.appendChild(s);
+    let fill = 0;
+    if (state.champion.rating >= i) fill = 100;
+    else if (state.champion.rating > i - 1) fill = 50;
+    starsHtml += `<div class="star" style="font-size:1.5rem">★<div class="star-fill" style="width:${fill}%">★</div></div>`;
   }
+  stars.innerHTML = starsHtml;
   nameEl.appendChild(stars);
 }
 
@@ -1209,7 +1139,6 @@ document.getElementById('fitBtn').addEventListener('click', () => {
   if (!state.bracket) return;
   const viewport = document.getElementById('bracketViewport');
   const content = document.getElementById('bracketContent');
-  // Сначала сбрасываем масштаб чтобы измерить реальный размер
   content.style.transform = 'scale(1)';
   const contentW = content.scrollWidth;
   const contentH = content.scrollHeight;
@@ -1223,23 +1152,20 @@ document.getElementById('fitBtn').addEventListener('click', () => {
 const searchBracket = document.getElementById('searchBracket');
 searchBracket.addEventListener('input', () => {
   const q = searchBracket.value.trim().toLowerCase();
-  // Снимаем подсветку
   document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
   if (!q || !state.bracket) return;
-  // Ищем игроков в первом раунде (и далее)
   for (const [name, locs] of bracketPlayerLocations) {
     if (name.toLowerCase().includes(q)) {
       locs.forEach(loc => {
         const mDiv = document.querySelector(`.match[data-round="${loc.r}"][data-match="${loc.m}"]`);
         if (mDiv) {
           mDiv.classList.add('highlight');
-          // Скроллим к первому совпадению
           if (locs.indexOf(loc) === 0) {
             mDiv.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
           }
         }
       });
-      break; // только первое совпадение
+      break;
     }
   }
 });
@@ -1254,16 +1180,15 @@ function saveToStorage() {
       bracket: state.bracket,
       champion: state.champion
     };
-    localStorage.setItem('tournament_v3', JSON.stringify(data));
+    localStorage.setItem('tournament_v4', JSON.stringify(data));
   } catch (e) {
-    // Молча игнорируем (например, при 10000+ команд может не хватить места)
     console.warn('Не удалось сохранить:', e);
   }
 }
 
 function loadFromStorage() {
   try {
-    const raw = localStorage.getItem('tournament_v3');
+    const raw = localStorage.getItem('tournament_v4');
     if (!raw) return false;
     const data = JSON.parse(raw);
     if (!data.players) return false;
@@ -1307,7 +1232,7 @@ document.getElementById('randomizeBtn').addEventListener('click', () => {
 });
 
 document.getElementById('resetBtn').addEventListener('click', () => {
-  if (!confirm('Сбросить турнир полностью (участники + сетка)?')) return;
+  if (!confirm('Сбросить турнир полностью?')) return;
   state = { tournamentName: '', bracketSize: 'auto', renderMode: 'virtual', players: [], bracket: null, champion: null, zoom: 1 };
   playerIndex.clear();
   bracketPlayerLocations.clear();
@@ -1316,17 +1241,16 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   filterPlayers();
   updateStats();
   renderBracketView();
-  localStorage.removeItem('tournament_v3');
+  localStorage.removeItem('tournament_v4');
 });
 
 // ==================== INIT ====================
 (function init() {
   const loaded = loadFromStorage();
   if (!loaded) {
-    // Демо-данные
     const demo = [
-      ['Иван', 5], ['Мария', 4], ['Алексей', 3], ['Ольга', 5],
-      ['Дмитрий', 2], ['Анна', 4], ['Сергей', 3], ['Елена', 1]
+      ['Иван', 5], ['Мария', 4.5], ['Алексей', 3.5], ['Ольга', 5],
+      ['Дмитрий', 2], ['Анна', 4], ['Сергей', 3], ['Елена', 1.5]
     ];
     demo.forEach(([name, rating]) => {
       const p = { name, rating };
