@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Турнирный Генератор</title>
+<title>Турнирный Генератор PRO</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -39,7 +39,6 @@
   input:focus, select:focus, textarea:focus {
     outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
   }
-  textarea { min-height: 100px; resize: vertical; font-family: monospace; font-size: 0.85rem; }
   button {
     padding: 9px 18px; background: linear-gradient(90deg, #3b82f6, #8b5cf6);
     border: none; border-radius: 8px; color: white; font-weight: 600;
@@ -53,109 +52,72 @@
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
 
   .star-rating { display: inline-flex; gap: 2px; cursor: pointer; user-select: none; }
-  .star-rating .star {
-    font-size: 1.2rem; color: #334155; position: relative; line-height: 1; transition: transform 0.1s;
-  }
+  .star-rating .star { font-size: 1.2rem; color: #334155; position: relative; line-height: 1; transition: transform 0.1s; }
   .star-rating .star:hover { transform: scale(1.1); }
   .star-rating .star-fill { position: absolute; top: 0; left: 0; height: 100%; overflow: hidden; color: #fbbf24; pointer-events: none; }
-  .star-rating.readonly .star { pointer-events: none; }
 
   .add-form { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; margin-bottom: 12px; }
-  @media (max-width: 700px) { .add-form { grid-template-columns: 1fr; } }
-  .rating-input-wrap {
-    background: #0f172a; border: 1px solid #334155; border-radius: 8px;
-    padding: 6px 12px; display: flex; align-items: center; gap: 10px;
-  }
+  .rating-input-wrap { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 10px; }
   .rating-input-wrap label { margin: 0; font-size: 0.75rem; white-space: nowrap; }
   .rating-value-display { color: #fbbf24; font-weight: bold; min-width: 30px; text-align: right; }
 
-  .players-toolbar {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0;
-    padding: 10px; background: #0f172a; border-radius: 8px; border: 1px solid #334155;
-  }
+  .players-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; padding: 10px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; }
   .players-toolbar input[type="search"] { flex: 1; min-width: 200px; }
-  .players-toolbar .stat { color: #94a3b8; font-size: 0.85rem; white-space: nowrap; }
-  .players-toolbar .stat strong { color: #60a5fa; }
+  .players-toolbar .stat { color: #94a3b8; font-size: 0.85rem; }
 
-  .players-viewport {
-    max-height: 400px; overflow-y: auto; border: 1px solid #334155;
-    border-radius: 8px; background: #0f172a; position: relative;
-  }
+  .players-viewport { max-height: 400px; overflow-y: auto; border: 1px solid #334155; border-radius: 8px; background: #0f172a; position: relative; }
   .players-spacer { position: relative; }
-  .player-row {
-    display: flex; align-items: center; gap: 12px; padding: 8px 12px;
-    border-bottom: 1px solid #1e293b; height: 48px; position: absolute;
-    left: 0; right: 0; background: #0f172a;
-  }
+  .player-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid #1e293b; height: 48px; position: absolute; left: 0; right: 0; background: #0f172a; }
   .player-row:hover { background: #1e293b; }
-  .player-row .seed {
-    background: #1e293b; color: #60a5fa; font-size: 0.7rem; font-weight: bold;
-    padding: 2px 6px; border-radius: 4px; min-width: 36px; text-align: center; flex-shrink: 0;
-  }
+  .player-row .seed { background: #1e293b; color: #60a5fa; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; min-width: 36px; text-align: center; flex-shrink: 0; }
   .player-row .name { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .player-row .rating-val { color: #fbbf24; font-size: 0.85rem; font-weight: bold; min-width: 30px; text-align: right; margin-right: 5px; }
-  .player-row .remove {
-    cursor: pointer; color: #f87171; font-weight: bold; font-size: 1.2rem;
-    padding: 0 6px; border-radius: 4px; flex-shrink: 0;
-  }
+  .player-row .remove { cursor: pointer; color: #f87171; font-weight: bold; font-size: 1.2rem; padding: 0 6px; border-radius: 4px; flex-shrink: 0; }
   .player-row .remove:hover { background: rgba(239,68,68,0.2); color: #ef4444; }
-  .empty-list { text-align: center; padding: 30px; color: #64748b; font-size: 0.9rem; }
 
-  .bracket-toolbar {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;
-    padding: 10px; background: #0f172a; border-radius: 8px; border: 1px solid #334155;
-  }
+  .bracket-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; padding: 10px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; }
   .bracket-toolbar .stat { color: #94a3b8; font-size: 0.85rem; }
-  .bracket-toolbar .stat strong { color: #60a5fa; }
-  .bracket-toolbar input[type="search"] { flex: 1; min-width: 180px; max-width: 300px; }
   .zoom-controls { display: flex; gap: 4px; align-items: center; }
   .zoom-controls button { padding: 5px 10px; font-size: 0.8rem; min-width: 32px; }
-  .zoom-controls .zoom-label { padding: 0 8px; color: #94a3b8; font-size: 0.8rem; min-width: 45px; text-align: center; }
 
-  .bracket-viewport {
-    overflow: auto; border: 1px solid #334155; border-radius: 8px;
-    background: #0f172a; height: 600px; position: relative; user-select: none;
-  }
+  .bracket-viewport { overflow: auto; border: 1px solid #334155; border-radius: 8px; background: #0f172a; height: 600px; position: relative; user-select: none; }
   .bracket-content { position: relative; transform-origin: 0 0; }
   .bracket { display: flex; gap: 24px; padding: 16px; min-width: min-content; }
-  .round { display: flex; flex-direction: column; justify-content: space-around; gap: 4px; min-width: 170px; flex-shrink: 0; }
+  
+  .round { display: flex; flex-direction: column; justify-content: space-around; gap: 4px; min-width: 180px; flex-shrink: 0; }
   .round-title { text-align: center; font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-bottom: 6px; letter-spacing: 1px; position: sticky; top: 0; background: #0f172a; padding: 4px 0; z-index: 2; }
-  .round-count { text-align: center; font-size: 0.65rem; color: #475569; margin-bottom: 6px; }
+  
   .match { background: #1e293b; border: 1px solid #334155; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-  .match-slot { padding: 5px 8px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; gap: 6px; border-bottom: 1px solid #334155; cursor: pointer; transition: background 0.1s; min-height: 26px; }
+  .match-slot { padding: 6px 8px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 6px; border-bottom: 1px solid #334155; cursor: pointer; transition: background 0.1s; min-height: 32px; }
   .match-slot:last-child { border-bottom: none; }
   .match-slot:hover { background: #273449; }
   .match-slot.winner { background: rgba(34,197,94,0.12); color: #86efac; }
   .match-slot.winner .slot-name::after { content: ' ✓'; color: #22c55e; }
+  .match-slot.loser { color: #fca5a5; }
   .match-slot.empty { color: #475569; font-style: italic; }
   .match-slot .slot-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .match-slot .stars-mini { display: flex; gap: 0; flex-shrink: 0; }
-  .match-slot .stars-mini .star { font-size: 0.6rem; color: #334155; position: relative; }
-  .match-slot .stars-mini .star-fill { position: absolute; top: 0; left: 0; height: 100%; overflow: hidden; color: #fbbf24; }
 
-  .bracket.compact .match-slot { padding: 3px 6px; font-size: 0.7rem; min-height: 20px; }
-  .bracket.compact .round { min-width: 130px; gap: 2px; }
-  .bracket.compact .bracket { gap: 14px; }
-  .bracket.compact .match-slot .stars-mini { display: none; }
-  .bracket.ultra-compact .match-slot { padding: 2px 5px; font-size: 0.65rem; min-height: 16px; }
-  .bracket.ultra-compact .round { min-width: 110px; gap: 1px; }
-  .bracket.ultra-compact .bracket { gap: 10px; }
-  .bracket.ultra-compact .stars-mini { display: none; }
-
-  .match.highlight { box-shadow: 0 0 0 2px #fbbf24; }
-  .match-slot.highlight { background: rgba(251,191,36,0.2); }
+  /* Специфичные стили для форматов */
+  .rr-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .rr-table th, .rr-table td { padding: 8px; border: 1px solid #334155; text-align: center; }
+  .rr-table th { background: #0f172a; color: #94a3b8; }
+  .rr-table td { background: #1e293b; }
+  .rr-table tr:hover td { background: #273449; }
+  
+  .swiss-rounds { display: flex; flex-direction: column; gap: 20px; }
+  .swiss-round-title { font-size: 1rem; font-weight: bold; color: #60a5fa; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+  .swiss-matches { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
 
   .status { padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.88rem; display: none; }
   .status.show { display: block; }
   .status.info { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
   .status.success { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
   .status.warn { background: rgba(251,191,36,0.15); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
-  .status.error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
 
   .winner-banner { text-align: center; padding: 25px; background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.05)); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px; margin-top: 20px; display: none; }
   .winner-banner.show { display: block; }
   .winner-banner h2 { color: #fbbf24; margin-bottom: 10px; font-size: 1.3rem; }
-  .winner-banner .champion { font-size: 1.5rem; font-weight: bold; color: #fde68a; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .winner-banner .champion { font-size: 1.5rem; font-weight: bold; color: #fde68a; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
   .empty-state h3 { color: #94a3b8; margin-bottom: 10px; }
@@ -170,44 +132,25 @@
 
   .controls { display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end; }
   @media (max-width: 768px) { .controls { grid-template-columns: 1fr; } }
-
-  .info-hint {
-    background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2);
-    border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #93c5fd;
-    margin-bottom: 12px; line-height: 1.5;
-  }
-  .info-hint strong { color: #bfdbfe; }
-
-  .user-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(34,197,94,0.15); color: #86efac;
-    border: 1px solid rgba(34,197,94,0.3);
-    padding: 6px 14px; border-radius: 20px; font-size: 0.85rem;
-    margin-bottom: 15px;
-  }
-  .user-badge strong { color: #bbf7d0; }
+  
+  .info-hint { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #93c5fd; margin-bottom: 12px; line-height: 1.5; }
 </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <h1>🏆 Турнирный Генератор</h1>
-    <p>Ваши команды хранятся <strong>только в вашем браузере</strong> и не зависят от обновлений сайта</p>
+    <h1>🏆 Турнирный Генератор PRO</h1>
+    <p>Олимпийка · Двойная · Круговая · Швейцарка</p>
   </header>
-
-  <div style="text-align:center;">
-    <div class="user-badge">
-      🔒 <strong>Личное хранилище</strong> · Ваши данные видны только вам
-    </div>
-  </div>
 
   <div class="panel">
     <div class="tabs">
       <button class="tab active" data-tab="settings">⚙️ Настройки</button>
       <button class="tab" data-tab="players">👥 Участники <span id="playerTabCount"></span></button>
-      <button class="tab" data-tab="bracket">🏆 Сетка</button>
+      <button class="tab" data-tab="bracket">🏆 Турнир</button>
     </div>
 
+    <!-- SETTINGS -->
     <div class="tab-content active" id="tab-settings">
       <div class="controls">
         <div>
@@ -215,41 +158,35 @@
           <input type="text" id="tournamentName" placeholder="Например: Чемпионат мира 2025">
         </div>
         <div>
-          <label>Размер сетки</label>
-          <select id="bracketSize">
-            <option value="auto">Авто (по числу участников)</option>
-            <option value="4">4</option>
-            <option value="8">8</option>
-            <option value="16">16</option>
-            <option value="32">32</option>
-            <option value="64">64</option>
-            <option value="128">128</option>
-            <option value="256">256</option>
-            <option value="512">512</option>
-            <option value="1024">1024</option>
-            <option value="2048">2048</option>
-            <option value="4096">4096</option>
+          <label>Формат турнира</label>
+          <select id="formatSelect">
+            <option value="single">Single Elim (Олимпийка)</option>
+            <option value="double">Double Elim (Двойная)</option>
+            <option value="roundrobin">Round Robin (Круговая)</option>
+            <option value="swiss">Swiss (Швейцарка)</option>
           </select>
         </div>
         <div>
-          <label>Режим отображения</label>
-          <select id="renderMode">
-            <option value="virtual">Виртуальный (для 100+)</option>
-            <option value="full">Полный (для небольших)</option>
+          <label>Размер сетки (для Elim)</label>
+          <select id="bracketSize">
+            <option value="auto">Авто (по числу участников)</option>
+            <option value="4">4</option><option value="8">8</option>
+            <option value="16">16</option><option value="32">32</option>
+            <option value="64">64</option><option value="128">128</option>
           </select>
         </div>
       </div>
       <div class="btn-row">
-        <button id="generateBtn">⚡ Сгенерировать сетку</button>
+        <button id="generateBtn">⚡ Сгенерировать турнир</button>
         <button class="secondary" id="seedBtn">🌱 Посев по рейтингу</button>
-        <button class="secondary" id="randomizeBtn">🎲 Случайная жеребьёвка</button>
-        <button class="secondary danger" id="resetBtn">🔄 Сбросить сетку</button>
+        <button class="secondary danger" id="resetBtn">🔄 Сбросить турнир</button>
       </div>
     </div>
 
+    <!-- PLAYERS -->
     <div class="tab-content" id="tab-players">
       <div class="info-hint">
-        💡 Ваши команды автоматически сохраняются в вашем браузере. Даже если автор сайта обновит код — <strong>ваш список команд останется неизменным</strong>. При добавлении нескольких команд используйте «Массово» с форматом <code>Имя,рейтинг</code>.
+        💡 Команды сохраняются автоматически в вашем браузере. Добавляйте через «Массово» в формате <code>Имя,рейтинг</code>.
       </div>
 
       <label>Добавить участника / команду</label>
@@ -265,33 +202,30 @@
 
       <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
         <button class="secondary" id="bulkAddBtn">📋 Массово</button>
-        <button class="secondary" id="demoBtn">🎯 Демо 1000</button>
-        <button class="secondary" id="exportBtn" title="Скачать список команд">📥 Экспорт</button>
-        <button class="secondary" id="importBtn" title="Загрузить список команд">📤 Импорт</button>
-        <input type="file" id="importFile" accept=".json" style="display:none;">
+        <button class="secondary" id="demoBtn">🎯 Демо 16</button>
         <button class="secondary danger" id="clearPlayersBtn" style="margin-left:auto;">Очистить всех</button>
       </div>
-      <textarea id="bulkInput" placeholder="Иван Петров,4.5&#10;Мария Сидорова,5&#10;Алексей Смирнов,2.5" style="display:none; margin-bottom:10px;"></textarea>
+      <textarea id="bulkInput" placeholder="Иван,4.5&#10;Мария,5" style="display:none; margin-bottom:10px;"></textarea>
 
       <div class="players-toolbar">
-        <input type="search" id="searchPlayers" placeholder="🔍 Поиск по имени...">
+        <input type="search" id="searchPlayers" placeholder="🔍 Поиск...">
         <span class="stat">Всего: <strong id="playerCount">0</strong></span>
-        <span class="stat">Средний: <strong id="avgRating" style="color:#fbbf24">—</strong></span>
       </div>
 
       <div class="players-viewport" id="playersViewport">
         <div class="players-spacer" id="playersSpacer">
-          <div class="empty-list" id="emptyList">Пока нет участников. Добавьте вручную или через «Массово».</div>
+          <div class="empty-list" id="emptyList">Пока нет участников.</div>
         </div>
       </div>
     </div>
 
+    <!-- BRACKET -->
     <div class="tab-content" id="tab-bracket">
       <div class="status" id="status"></div>
+      
       <div class="bracket-toolbar" id="bracketToolbar" style="display:none;">
-        <span class="stat">Сетка: <strong id="bracketSizeInfo">—</strong></span>
-        <span class="stat">Матчей: <strong id="matchCount">—</strong></span>
-        <input type="search" id="searchBracket" placeholder="🔍 Найти команду...">
+        <span class="stat" id="formatInfo">Формат: —</span>
+        <button class="secondary" id="nextRoundBtn" style="display:none;">➡️ Следующий раунд (Swiss)</button>
         <div class="zoom-controls">
           <button class="secondary" id="zoomOut">−</button>
           <span class="zoom-label" id="zoomLabel">100%</span>
@@ -300,15 +234,16 @@
         </div>
         <button class="secondary" id="fitBtn">⊡ Вписать</button>
       </div>
-      <div class="bracket-viewport" id="bracketViewport" style="display:none;">
-        <div class="bracket-content" id="bracketContent">
-          <div class="bracket" id="bracketEl"></div>
-        </div>
+
+      <div id="tournamentContainer" style="display:none;">
+        <!-- Сюда рендерится сетка/таблица -->
       </div>
+
       <div class="empty-state" id="bracketEmpty">
-        <h3>Сетка ещё не создана</h3>
-        <p>Добавьте участников и нажмите «Сгенерировать сетку»</p>
+        <h3>Турнир ещё не создан</h3>
+        <p>Добавьте участников и нажмите «Сгенерировать турнир»</p>
       </div>
+
       <div class="winner-banner" id="winnerBanner">
         <h2>🎉 Победитель турнира</h2>
         <div class="champion" id="championName">—</div>
@@ -319,53 +254,32 @@
 
 <script>
 // ============================================================
-// 🔑 КОНСТАНТЫ ХРАНИЛИЩА
-// Эти ключи НИКОГДА НЕ МЕНЯЮТСЯ. Даже если вы обновите код,
-// данные всех пользователей останутся на месте.
+// КОНСТАНТЫ ХРАНИЛИЩА
 // ============================================================
-const STORAGE_KEY = 'tournament_userdata_v1';
-const STORAGE_FORMAT_VERSION = 1;
-
-// Старые ключи (если пользователь заходил на предыдущие версии сайта) —
-// их данные будут автоматически перенесены в новый ключ.
-const LEGACY_KEYS = ['tournament_v5', 'tournament_v4', 'tournament_v3', 'tournament_v2'];
+const STORAGE_KEY = 'tournament_userdata_v2';
+const LEGACY_KEYS = ['tournament_userdata_v1', 'tournament_v5'];
 
 // ==================== STATE ====================
 let state = {
   tournamentName: '',
+  format: 'single', // single, double, roundrobin, swiss
   bracketSize: 'auto',
-  renderMode: 'virtual',
-  players: [],
-  bracket: null,
+  players: [],      // [{name, rating}]
+  tournament: null, // Объект с данными турнира (зависит от формата)
   champion: null,
   zoom: 1
 };
-
 let playerIndex = new Map();
-let bracketPlayerLocations = new Map();
 
 // ==================== UTILS ====================
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function nextPowerOf2(n) { let p = 1; while (p < n) p *= 2; return p; }
-
 function showStatus(msg, type = 'info', duration = 4500) {
   const el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = 'status show ' + type;
-  clearTimeout(el._timer);
-  el._timer = setTimeout(() => el.classList.remove('show'), duration);
+  el.textContent = msg; el.className = 'status show ' + type;
+  clearTimeout(el._timer); el._timer = setTimeout(() => el.classList.remove('show'), duration);
 }
-
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -375,22 +289,18 @@ function switchTab(name) {
 
 // ==================== STAR WIDGET ====================
 function initStarWidget(el, initial = 3, onChange = null) {
-  el.innerHTML = '';
-  el.dataset.rating = initial;
+  el.innerHTML = ''; el.dataset.rating = initial;
   for (let i = 1; i <= 5; i++) {
     const starEl = document.createElement('div');
-    starEl.className = 'star';
-    starEl.dataset.index = i;
+    starEl.className = 'star'; starEl.dataset.index = i;
     starEl.innerHTML = `★<div class="star-fill" style="width:0%">★</div>`;
     el.appendChild(starEl);
   }
   function updateVisual(val) {
     el.dataset.rating = val;
     el.querySelectorAll('.star').forEach((starEl, idx) => {
-      const i = idx + 1;
-      let fill = 0;
-      if (val >= i) fill = 100;
-      else if (val > i - 1) fill = 50;
+      const i = idx + 1; let fill = 0;
+      if (val >= i) fill = 100; else if (val > i - 1) fill = 50;
       starEl.querySelector('.star-fill').style.width = fill + '%';
     });
   }
@@ -413,10 +323,8 @@ function initStarWidget(el, initial = 3, onChange = null) {
     const isLeftHalf = (e.clientX - rect.left) < rect.width / 2;
     const hoverVal = isLeftHalf ? index - 0.5 : index;
     el.querySelectorAll('.star').forEach((s, idx) => {
-      const i = idx + 1;
-      let fill = 0;
-      if (hoverVal >= i) fill = 100;
-      else if (hoverVal > i - 1) fill = 50;
+      const i = idx + 1; let fill = 0;
+      if (hoverVal >= i) fill = 100; else if (hoverVal > i - 1) fill = 50;
       s.querySelector('.star-fill').style.width = fill + '%';
     });
   };
@@ -430,9 +338,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === 'bracket' && state.bracket) {
-      requestAnimationFrame(() => renderBracketView());
-    }
+    if (tab.dataset.tab === 'bracket') renderTournament();
   });
 });
 
@@ -441,34 +347,21 @@ const ROW_HEIGHT = 48;
 let filteredPlayers = [];
 let playersViewport, playersSpacer, searchPlayersInput;
 
-function updatePlayerIndex() {
-  playerIndex.clear();
-  state.players.forEach(p => playerIndex.set(p.name, p));
-}
-
+function updatePlayerIndex() { playerIndex.clear(); state.players.forEach(p => playerIndex.set(p.name, p)); }
 function filterPlayers() {
   const q = searchPlayersInput.value.trim().toLowerCase();
   filteredPlayers = !q ? state.players : state.players.filter(p => p.name.toLowerCase().includes(q));
   renderPlayersViewport();
 }
-
 function renderPlayersViewport() {
   playersViewport = playersViewport || document.getElementById('playersViewport');
   playersSpacer = playersSpacer || document.getElementById('playersSpacer');
   const total = filteredPlayers.length;
   playersSpacer.style.height = (total * ROW_HEIGHT) + 'px';
-
   const emptyList = document.getElementById('emptyList');
-  if (total === 0) {
-    emptyList.style.display = 'block';
-    emptyList.textContent = state.players.length === 0
-      ? 'Пока нет участников. Добавьте вручную или через «Массово».'
-      : 'Никого не найдено по запросу.';
-  } else {
-    emptyList.style.display = 'none';
-  }
-
+  emptyList.style.display = total === 0 ? 'block' : 'none';
   playersSpacer.querySelectorAll('.player-row').forEach(r => r.remove());
+  
   const scrollTop = playersViewport.scrollTop;
   const viewH = playersViewport.clientHeight;
   const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - 2);
@@ -476,84 +369,45 @@ function renderPlayersViewport() {
 
   const frag = document.createDocumentFragment();
   for (let i = startIdx; i < endIdx; i++) {
-    const p = filteredPlayers[i];
-    const realIdx = state.players.indexOf(p);
+    const p = filteredPlayers[i]; const realIdx = state.players.indexOf(p);
     const row = document.createElement('div');
-    row.className = 'player-row';
-    row.style.top = (i * ROW_HEIGHT) + 'px';
-    row.innerHTML = `
-      <span class="seed">#${realIdx + 1}</span>
-      <span class="name">${escapeHtml(p.name)}</span>
-      <span class="rating-val">${p.rating.toFixed(1)}★</span>
-      <span class="rating-mount"></span>
-      <span class="remove" data-idx="${realIdx}" title="Удалить">×</span>
-    `;
-    const widget = document.createElement('div');
-    widget.className = 'star-rating';
+    row.className = 'player-row'; row.style.top = (i * ROW_HEIGHT) + 'px';
+    row.innerHTML = `<span class="seed">#${realIdx + 1}</span><span class="name">${escapeHtml(p.name)}</span><span class="rating-val">${p.rating.toFixed(1)}★</span><span class="rating-mount"></span><span class="remove" data-idx="${realIdx}">×</span>`;
+    const widget = document.createElement('div'); widget.className = 'star-rating';
     row.querySelector('.rating-mount').appendChild(widget);
-    initStarWidget(widget, p.rating, (val) => {
-      p.rating = val;
-      row.querySelector('.rating-val').textContent = val.toFixed(1) + '★';
-      updateStats();
-      saveToStorage();
-    });
+    initStarWidget(widget, p.rating, (val) => { p.rating = val; row.querySelector('.rating-val').textContent = val.toFixed(1) + '★'; saveToStorage(); });
     frag.appendChild(row);
   }
   playersSpacer.appendChild(frag);
-
   playersSpacer.onclick = (e) => {
     const rm = e.target.closest('.remove');
-    if (rm) {
-      state.players.splice(parseInt(rm.dataset.idx), 1);
-      updatePlayerIndex();
-      filterPlayers();
-      updateStats();
-      saveToStorage();
-    }
+    if (rm) { state.players.splice(parseInt(rm.dataset.idx), 1); updatePlayerIndex(); filterPlayers(); updateStats(); saveToStorage(); }
   };
 }
-
 let rafId = null;
 document.getElementById('playersViewport').addEventListener('scroll', () => {
-  if (rafId) cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(renderPlayersViewport);
+  if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(renderPlayersViewport);
 });
-
 searchPlayersInput = document.getElementById('searchPlayers');
 searchPlayersInput.addEventListener('input', filterPlayers);
-
 function updateStats() {
   document.getElementById('playerCount').textContent = state.players.length;
   document.getElementById('playerTabCount').textContent = state.players.length ? `(${state.players.length})` : '';
-  const avgEl = document.getElementById('avgRating');
-  if (state.players.length === 0) {
-    avgEl.textContent = '—';
-  } else {
-    const sum = state.players.reduce((a, p) => a + p.rating, 0);
-    avgEl.textContent = (sum / state.players.length).toFixed(1) + '★';
-  }
 }
 
 // ==================== ADD PLAYERS ====================
 const newPlayerRating = document.getElementById('newPlayerRating');
 const newRatingValue = document.getElementById('newRatingValue');
-initStarWidget(newPlayerRating, 3.0, (val) => {
-  newRatingValue.textContent = val.toFixed(1);
-});
+initStarWidget(newPlayerRating, 3.0, (val) => newRatingValue.textContent = val.toFixed(1));
 
 function addPlayer() {
   const input = document.getElementById('playerInput');
   const name = input.value.trim();
-  if (!name) return;
-  if (playerIndex.has(name)) { showStatus('Такая команда уже есть!', 'warn'); return; }
+  if (!name || playerIndex.has(name)) return;
   const rating = parseFloat(newPlayerRating.dataset.rating) || 3.0;
   state.players.push({ name, rating });
   playerIndex.set(name, state.players[state.players.length - 1]);
-  input.value = '';
-  input.focus();
-  filterPlayers();
-  updateStats();
-  saveToStorage();
+  input.value = ''; input.focus(); filterPlayers(); updateStats(); saveToStorage();
 }
 document.getElementById('addPlayerBtn').addEventListener('click', addPlayer);
 document.getElementById('playerInput').addEventListener('keypress', e => { if (e.key === 'Enter') addPlayer(); });
@@ -563,180 +417,127 @@ document.getElementById('bulkAddBtn').addEventListener('click', () => {
   ta.style.display = ta.style.display === 'block' ? 'none' : 'block';
   if (ta.style.display === 'block') ta.focus();
 });
-
 document.getElementById('bulkInput').addEventListener('blur', (e) => {
-  const ta = e.target;
-  const lines = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
-  if (!lines.length) { ta.style.display = 'none'; return; }
-  let added = 0;
+  const lines = e.target.value.split('\n').map(s => s.trim()).filter(Boolean);
   lines.forEach(line => {
     const parts = line.split(',').map(s => s.trim());
-    const name = parts[0];
-    let rating = parseFloat(parts[1]);
-    if (isNaN(rating) || rating < 0.5) rating = 3.0;
-    if (rating > 5.0) rating = 5.0;
-    rating = Math.round(rating * 2) / 2;
-    if (name && !playerIndex.has(name)) {
-      const p = { name, rating };
-      state.players.push(p);
-      playerIndex.set(name, p);
-      added++;
+    let rating = parseFloat(parts[1]); if (isNaN(rating)) rating = 3.0;
+    if (parts[0] && !playerIndex.has(parts[0])) {
+      const p = { name: parts[0], rating: Math.round(rating * 2) / 2 };
+      state.players.push(p); playerIndex.set(p.name, p);
     }
   });
-  ta.value = '';
-  ta.style.display = 'none';
-  filterPlayers();
-  updateStats();
-  saveToStorage();
-  showStatus(`Добавлено: ${added} команд. Всего: ${state.players.length}`, 'success');
+  e.target.value = ''; e.target.style.display = 'none'; filterPlayers(); updateStats(); saveToStorage();
 });
-
 document.getElementById('clearPlayersBtn').addEventListener('click', () => {
-  if (state.players.length && confirm(`Удалить всех участников (${state.players.length})? Это действие только для вашего браузера.`)) {
-    state.players = [];
-    playerIndex.clear();
-    filterPlayers();
-    updateStats();
-    saveToStorage();
-  }
+  if (confirm('Удалить всех?')) { state.players = []; playerIndex.clear(); filterPlayers(); updateStats(); saveToStorage(); }
 });
-
 document.getElementById('demoBtn').addEventListener('click', () => {
-  if (state.players.length > 0 && !confirm('Добавить ещё 1000 демо-команд?')) return;
-  const prefixes = ['ФК', 'FC', 'Динамо', 'Спартак', 'ЦСКА', 'Локомотив', 'Зенит', 'Рубин', 'Ахмат', 'Крылья'];
-  const cities = ['Москва', 'Питер', 'Казань', 'Сочи', 'Ростов', 'Уфа', 'Омск', 'Томск', 'Пермь', 'Тула', 'Самара', 'Волга', 'Урал', 'Сибирь', 'Восток'];
-  const batch = [];
-  for (let i = 0; i < 1000; i++) {
-    const name = `${prefixes[i % prefixes.length]} ${cities[(i * 7) % cities.length]}-${Math.floor(i / prefixes.length) + 1}`;
-    const rating = (1 + Math.floor(Math.random() * 9)) / 2;
-    if (!playerIndex.has(name)) batch.push({ name, rating });
-  }
-  batch.forEach(p => { state.players.push(p); playerIndex.set(p.name, p); });
-  filterPlayers();
-  updateStats();
+  const names = ['Иван', 'Мария', 'Алексей', 'Ольга', 'Дмитрий', 'Анна', 'Сергей', 'Елена', 'Павел', 'Ксения', 'Артем', 'Юлия', 'Никита', 'Света', 'Максим', 'Вера'];
+  names.forEach(n => { if (!playerIndex.has(n)) { const p = { name: n, rating: Math.round((1 + Math.random() * 4) * 2) / 2 }; state.players.push(p); playerIndex.set(n, p); } });
+  filterPlayers(); updateStats(); saveToStorage();
+});
+
+// ==================== GENERATE TOURNAMENT ====================
+document.getElementById('generateBtn').addEventListener('click', () => {
+  if (state.players.length < 2) { showStatus('Нужно минимум 2 участника', 'warn'); switchTab('players'); return; }
+  state.tournamentName = document.getElementById('tournamentName').value.trim();
+  state.format = document.getElementById('formatSelect').value;
+  state.bracketSize = document.getElementById('bracketSize').value;
+  
+  if (state.format === 'single' || state.format === 'double') generateElimination(state.format === 'double');
+  else if (state.format === 'roundrobin') generateRoundRobin();
+  else if (state.format === 'swiss') generateSwiss();
+
+  switchTab('bracket');
   saveToStorage();
-  showStatus(`Добавлено ${batch.length} демо-команд.`, 'success');
 });
 
-// ==================== EXPORT / IMPORT ====================
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const data = {
-    formatVersion: STORAGE_FORMAT_VERSION,
-    exportDate: new Date().toISOString(),
-    tournamentName: document.getElementById('tournamentName').value,
-    bracketSize: document.getElementById('bracketSize').value,
-    players: state.players,
-    bracket: state.bracket,
-    champion: state.champion
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'tournament_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showStatus('Файл турнира скачан (для резервной копии)', 'success');
+document.getElementById('seedBtn').addEventListener('click', () => {
+  if (state.players.length < 2) return;
+  state.players.sort((a, b) => b.rating - a.rating);
+  updatePlayerIndex(); filterPlayers();
+  document.getElementById('generateBtn').click();
 });
 
-document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!data.players || !Array.isArray(data.players)) { showStatus('Неверный формат файла', 'error'); return; }
-      if (!confirm(`Заменить текущий список команд (${state.players.length}) на ${data.players.length} из файла?`)) return;
-      state.players = data.players;
-      state.bracket = data.bracket || null;
-      state.champion = data.champion || null;
-      updatePlayerIndex();
-      if (data.tournamentName) document.getElementById('tournamentName').value = data.tournamentName;
-      if (data.bracketSize) document.getElementById('bracketSize').value = data.bracketSize;
-      filterPlayers();
-      updateStats();
-      if (state.bracket) { buildBracketIndex(); renderBracketView(); }
-      saveToStorage();
-      showStatus(`Импортировано ${state.players.length} команд`, 'success');
-    } catch (err) {
-      showStatus('Ошибка при чтении файла', 'error');
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Сбросить текущий турнир? (Участники останутся)')) return;
+  state.tournament = null; state.champion = null;
+  renderTournament(); saveToStorage();
+});
+
+// ==================== ELIMINATION (Single & Double) ====================
+function generateElimination(isDouble) {
+  let size = state.bracketSize === 'auto' ? nextPowerOf2(state.players.length) : parseInt(state.bracketSize);
+  if (state.players.length > size) { showStatus('Участников больше, чем мест в сетке', 'warn'); return; }
+  
+  const sorted = [...state.players].sort((a, b) => b.rating - a.rating);
+  const seeded = seededOrder(sorted, size);
+  const slots = [...seeded, ...Array(size - seeded.length).fill(null)];
+
+  // Winners Bracket
+  const wRounds = [];
+  const wRound1 = [];
+  for (let i = 0; i < size; i += 2) {
+    const p1 = slots[i], p2 = slots[i + 1];
+    let winner = null;
+    if (p1 && !p2) winner = p1;
+    else if (!p1 && p2) winner = p2;
+    wRound1.push({ p1, p2, winner, score1: null, score2: null });
+  }
+  wRounds.push(wRound1);
+  let count = wRound1.length;
+  while (count > 1) {
+    const next = [];
+    for (let i = 0; i < count / 2; i++) next.push({ p1: null, p2: null, winner: null, score1: null, score2: null });
+    wRounds.push(next); count = next.length;
+  }
+
+  // Автопроход bye в WB
+  for (let i = 0; i < wRound1.length; i++) {
+    const m = wRound1[i];
+    if (m.winner) {
+      const nm = wRounds[1][Math.floor(i / 2)];
+      if (i % 2 === 0) nm.p1 = m.winner; else nm.p2 = m.winner;
     }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-});
+  }
 
-// ==================== BRACKET GENERATION ====================
-function generateBracket(mode = 'auto') {
-  if (state.players.length < 2) {
-    showStatus('Нужно минимум 2 участника', 'info');
-    switchTab('players');
+  if (!isDouble) {
+    state.tournament = { format: 'single', wRounds, size };
+    state.champion = null;
+    renderTournament();
     return;
   }
-  let size;
-  if (state.bracketSize === 'auto') size = nextPowerOf2(state.players.length);
-  else {
-    size = parseInt(state.bracketSize);
-    if (state.players.length > size) {
-      showStatus(`Участников (${state.players.length}) больше, чем мест (${size}). Увеличьте размер.`, 'error');
-      return;
-    }
+
+  // Losers Bracket (Double)
+  // Количество раундов в LB = 2 * (log2(size) - 1)
+  const wRoundsCount = wRounds.length; 
+  const lRoundsCount = 2 * (wRoundsCount - 1);
+  const lRounds = [];
+  
+  // Создаём пустые раунды LB
+  for (let r = 0; r < lRoundsCount; r++) {
+    let matchesInRound;
+    if (r === 0) matchesInRound = size / 4;
+    else if (r % 2 === 1) matchesInRound = lRounds[r-1].length; // Четные: приём проигравших из WB
+    else matchesInRound = lRounds[r-1].length / 2; // Нечетные: внутренние матчи LB
+    if (matchesInRound < 1) matchesInRound = 1;
+    const round = [];
+    for (let i = 0; i < matchesInRound; i++) round.push({ p1: null, p2: null, winner: null, score1: null, score2: null });
+    lRounds.push(round);
   }
-  if (size > 4096) { showStatus(`Слишком большой размер: ${size}. Максимум — 4096.`, 'error'); return; }
-  showStatus('Генерация сетки...', 'info', 2000);
 
-  setTimeout(() => {
-    let orderedPlayers;
-    if (mode === 'seeded') orderedPlayers = [...state.players].sort((a, b) => b.rating - a.rating);
-    else if (mode === 'random') orderedPlayers = shuffle(state.players);
-    else orderedPlayers = [...state.players];
-
-    const seeded = seededOrder(orderedPlayers, size);
-    const slots = [...seeded, ...Array(size - seeded.length).fill(null)];
-    const rounds = [];
-    const round1 = [];
-    for (let i = 0; i < size; i += 2) {
-      const p1 = slots[i], p2 = slots[i + 1];
-      let winner = null;
-      if (p1 && !p2) winner = p1;
-      else if (!p1 && p2) winner = p2;
-      round1.push({ p1, p2, winner });
-    }
-    rounds.push(round1);
-    let count = round1.length;
-    while (count > 1) {
-      const next = [];
-      for (let i = 0; i < count / 2; i++) next.push({ p1: null, p2: null, winner: null });
-      rounds.push(next);
-      count = next.length;
-    }
-    for (let i = 0; i < round1.length; i++) {
-      const m = round1[i];
-      if (m.winner) {
-        const nm = rounds[1][Math.floor(i / 2)];
-        if (i % 2 === 0) nm.p1 = m.winner; else nm.p2 = m.winner;
-      }
-    }
-    state.bracket = { rounds, size };
-    state.champion = null;
-    buildBracketIndex();
-    renderBracketView();
-    switchTab('bracket');
-    showStatus(`Сетка на ${size} мест готова.`, 'success');
-    saveToStorage();
-  }, 20);
+  state.tournament = { format: 'double', wRounds, lRounds, size, grandFinal: { p1: null, p2: null, winner: null } };
+  state.champion = null;
+  renderTournament();
 }
 
 function seededOrder(sorted, size) {
-  if (sorted.length === 0) return [];
   const positions = new Array(size).fill(null);
   const seedArr = standardSeed(size);
   for (let i = 0; i < sorted.length; i++) positions[seedArr[i] - 1] = sorted[i];
   return positions;
 }
-
 function standardSeed(size) {
   let seeds = [1, 2];
   while (seeds.length < size) {
@@ -747,129 +548,278 @@ function standardSeed(size) {
   return seeds;
 }
 
-function buildBracketIndex() {
-  bracketPlayerLocations.clear();
-  if (!state.bracket) return;
-  state.bracket.rounds.forEach((round, r) => {
-    round.forEach((m, mi) => {
-      if (m.p1) {
-        if (!bracketPlayerLocations.has(m.p1.name)) bracketPlayerLocations.set(m.p1.name, []);
-        bracketPlayerLocations.get(m.p1.name).push({ r, m: mi, slot: 'p1' });
-      }
-      if (m.p2) {
-        if (!bracketPlayerLocations.has(m.p2.name)) bracketPlayerLocations.set(m.p2.name, []);
-        bracketPlayerLocations.get(m.p2.name).push({ r, m: mi, slot: 'p2' });
-      }
-    });
-  });
+// ==================== ROUND ROBIN ====================
+function generateRoundRobin() {
+  const players = [...state.players];
+  if (players.length % 2 !== 0) players.push(null); // Bye
+  const n = players.length;
+  const roundsCount = n - 1;
+  const matchesPerRound = n / 2;
+  const rounds = [];
+
+  for (let r = 0; r < roundsCount; r++) {
+    const roundMatches = [];
+    for (let i = 0; i < matchesPerRound; i++) {
+      const p1 = players[i];
+      const p2 = players[n - 1 - i];
+      if (p1 && p2) roundMatches.push({ p1, p2, winner: null, score1: null, score2: null });
+      else if (p1 || p2) roundMatches.push({ p1: p1 || p2, p2: null, winner: p1 || p2 }); // Автопобеда
+    }
+    rounds.push(roundMatches);
+    // Ротация (кроме первого)
+    players.splice(1, 0, players.pop());
+  }
+
+  state.tournament = { format: 'roundrobin', rounds, players: state.players.map(p => p.name) };
+  state.champion = null;
+  renderTournament();
 }
 
-// ==================== BRACKET RENDER ====================
-const CARD_H = 54, CARD_GAP = 6;
+// ==================== SWISS ====================
+function generateSwiss() {
+  const players = state.players.map(p => ({ ...p, points: 0, opponents: [], played: new Set() }));
+  state.tournament = { format: 'swiss', rounds: [], players, maxRounds: Math.ceil(Math.log2(players.length)) + 1 };
+  generateSwissRound();
+  renderTournament();
+}
 
-function renderBracketView() {
-  const viewport = document.getElementById('bracketViewport');
-  const toolbar = document.getElementById('bracketToolbar');
+function generateSwissRound() {
+  const t = state.tournament;
+  if (t.rounds.length >= t.maxRounds || t.players.length < 2) return;
+
+  // Сортировка по очкам, затем по рейтингу (для посева)
+  const sorted = [...t.players].sort((a, b) => b.points - a.points || b.rating - a.rating);
+  
+  const paired = new Set();
+  const matches = [];
+
+  for (let i = 0; i < sorted.length; i++) {
+    const p1 = sorted[i];
+    if (paired.has(p1.name)) continue;
+
+    // Ищем соперника с таким же кол-вом очков, с которым еще не играли
+    let opponent = null;
+    for (let j = i + 1; j < sorted.length; j++) {
+      const p2 = sorted[j];
+      if (!paired.has(p2.name) && !p1.played.has(p2.name)) {
+        opponent = p2; break;
+      }
+    }
+    
+    if (opponent) {
+      paired.add(p1.name); paired.add(opponent.name);
+      matches.push({ p1, p2: opponent, winner: null, score1: null, score2: null });
+    } else {
+      // Если соперник не найден — даем Bye (автопобеду)
+      paired.add(p1.name);
+      matches.push({ p1, p2: null, winner: p1, isBye: true });
+      p1.points += 1;
+    }
+  }
+
+  t.rounds.push({ matches });
+}
+
+document.getElementById('nextRoundBtn').addEventListener('click', () => {
+  if (state.tournament && state.tournament.format === 'swiss') {
+    generateSwissRound();
+    renderTournament();
+    saveToStorage();
+  }
+});
+
+// ==================== RENDER TOURNAMENT ====================
+function renderTournament() {
+  const container = document.getElementById('tournamentContainer');
   const empty = document.getElementById('bracketEmpty');
-  const content = document.getElementById('bracketContent');
-  const bracketEl = document.getElementById('bracketEl');
+  const toolbar = document.getElementById('bracketToolbar');
+  const formatInfo = document.getElementById('formatInfo');
+  const nextBtn = document.getElementById('nextRoundBtn');
 
-  if (!state.bracket) {
-    viewport.style.display = 'none';
-    toolbar.style.display = 'none';
-    empty.style.display = 'block';
+  if (!state.tournament) {
+    container.style.display = 'none'; empty.style.display = 'block'; toolbar.style.display = 'none';
+    document.getElementById('winnerBanner').classList.remove('show');
     return;
   }
-  viewport.style.display = 'block';
-  toolbar.style.display = 'flex';
-  empty.style.display = 'none';
 
-  const { rounds, size } = state.bracket;
-  document.getElementById('bracketSizeInfo').textContent = size + ' мест';
-  document.getElementById('matchCount').textContent = (size - 1);
-  content.style.transform = `scale(${state.zoom})`;
+  container.style.display = 'block'; empty.style.display = 'none'; toolbar.style.display = 'flex';
+  
+  const formatNames = { single: 'Олимпийка', double: 'Двойная', roundrobin: 'Круговая', swiss: 'Швейцарка' };
+  formatInfo.textContent = `Формат: ${formatNames[state.tournament.format]}`;
+  nextBtn.style.display = state.tournament.format === 'swiss' && state.tournament.rounds.length < state.tournament.maxRounds ? 'inline-block' : 'none';
 
-  bracketEl.className = 'bracket';
-  if (size >= 512) bracketEl.classList.add('ultra-compact');
-  else if (size >= 128) bracketEl.classList.add('compact');
+  if (state.tournament.format === 'single') renderSingleElim(container, state.tournament.wRounds);
+  else if (state.tournament.format === 'double') renderDoubleElim(container, state.tournament.wRounds, state.tournament.lRounds);
+  else if (state.tournament.format === 'roundrobin') renderRoundRobin(container, state.tournament.rounds);
+  else if (state.tournament.format === 'swiss') renderSwiss(container, state.tournament.rounds);
 
-  const effCardH = size >= 512 ? 18 : (size >= 128 ? 24 : CARD_H);
-  const effGap = size >= 512 ? 1 : (size >= 128 ? 2 : CARD_GAP);
-  const round1H = (size / 2) * (effCardH + effGap);
+  // Обновляем баннер победителя
+  if (state.champion) {
+    document.getElementById('winnerBanner').classList.add('show');
+    document.getElementById('championName').textContent = state.champion.name;
+  } else {
+    document.getElementById('winnerBanner').classList.remove('show');
+  }
+}
 
-  bracketEl.innerHTML = '';
+// --- RENDER: ELIMINATION ---
+function renderSingleElim(container, rounds) {
+  let html = `<div class="bracket-viewport" id="bracketViewport"><div class="bracket-content" id="bracketContent" style="transform: scale(${state.zoom})"><div class="bracket">`;
   const roundNames = getRoundNames(rounds.length);
-
+  
   rounds.forEach((round, rIdx) => {
-    const roundDiv = document.createElement('div');
-    roundDiv.className = 'round';
-    roundDiv.style.minHeight = round1H + 'px';
-    const title = document.createElement('div');
-    title.className = 'round-title';
-    title.textContent = roundNames[rIdx];
-    roundDiv.appendChild(title);
-    const count = document.createElement('div');
-    count.className = 'round-count';
-    count.textContent = `${round.length} матч${plural(round.length)}`;
-    roundDiv.appendChild(count);
-
+    html += `<div class="round"><div class="round-title">${roundNames[rIdx]}</div>`;
     round.forEach((m, mIdx) => {
-      const mDiv = document.createElement('div');
-      mDiv.className = 'match';
-      mDiv.dataset.round = rIdx;
-      mDiv.dataset.match = mIdx;
-      mDiv.appendChild(createSlot(m.p1, m.winner && m.winner === m.p1, rIdx, mIdx, 'p1'));
-      mDiv.appendChild(createSlot(m.p2, m.winner && m.winner === m.p2, rIdx, mIdx, 'p2'));
-      roundDiv.appendChild(mDiv);
+      html += `<div class="match">`;
+      html += createSlotHtml(m.p1, m.winner && m.winner === m.p1, 'single', rIdx, mIdx, 'p1');
+      html += createSlotHtml(m.p2, m.winner && m.winner === m.p2, 'single', rIdx, mIdx, 'p2');
+      html += `</div>`;
     });
-    bracketEl.appendChild(roundDiv);
+    html += `</div>`;
+  });
+  html += `</div></div></div>`;
+  container.innerHTML = html;
+  attachBracketEvents('single');
+}
+
+function renderDoubleElim(container, wRounds, lRounds) {
+  let html = `<div class="bracket-viewport" id="bracketViewport"><div class="bracket-content" id="bracketContent" style="transform: scale(${state.zoom})"><div class="bracket">`;
+  
+  // Winners Bracket
+  const wNames = getRoundNames(wRounds.length);
+  wRounds.forEach((round, rIdx) => {
+    html += `<div class="round"><div class="round-title">Winners ${wNames[rIdx]}</div>`;
+    round.forEach((m, mIdx) => {
+      html += `<div class="match">`;
+      html += createSlotHtml(m.p1, m.winner && m.winner === m.p1, 'w', rIdx, mIdx, 'p1');
+      html += createSlotHtml(m.p2, m.winner && m.winner === m.p2, 'w', rIdx, mIdx, 'p2');
+      html += `</div>`;
+    });
+    html += `</div>`;
   });
 
-  bracketEl.onclick = (e) => {
-    const slot = e.target.closest('.match-slot');
-    if (!slot) return;
-    const r = +slot.dataset.round, mi = +slot.dataset.match, type = slot.dataset.slot;
-    const match = state.bracket.rounds[r][mi];
-    const player = type === 'p1' ? match.p1 : match.p2;
+  // Losers Bracket
+  const lNames = [];
+  for (let i = 0; i < lRounds.length; i++) lNames.push(`Losers R${i+1}`);
+  lRounds.forEach((round, rIdx) => {
+    html += `<div class="round"><div class="round-title">${lNames[rIdx]}</div>`;
+    round.forEach((m, mIdx) => {
+      html += `<div class="match">`;
+      html += createSlotHtml(m.p1, m.winner && m.winner === m.p1, 'l', rIdx, mIdx, 'p1');
+      html += createSlotHtml(m.p2, m.winner && m.winner === m.p2, 'l', rIdx, mIdx, 'p2');
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+
+  // Grand Final
+  html += `<div class="round"><div class="round-title">Grand Final</div><div class="match">`;
+  const gf = state.tournament.grandFinal;
+  html += createSlotHtml(gf.p1, gf.winner && gf.winner === gf.p1, 'gf', 0, 0, 'p1');
+  html += createSlotHtml(gf.p2, gf.winner && gf.winner === gf.p2, 'gf', 0, 0, 'p2');
+  html += `</div></div>`;
+
+  html += `</div></div></div>`;
+  container.innerHTML = html;
+  attachBracketEvents('double');
+}
+
+function createSlotHtml(player, isWinner, bracketType, r, mi, slot) {
+  const cls = ['match-slot'];
+  if (isWinner) cls.push('winner');
+  if (!player) cls.push('empty');
+  return `<div class="${cls.join(' ')}" data-bracket="${bracketType}" data-r="${r}" data-m="${mi}" data-slot="${slot}">
+    <span class="slot-name">${player ? escapeHtml(player.name) : '—'}</span>
+  </div>`;
+}
+
+function attachBracketEvents(type) {
+  document.querySelectorAll('.match-slot').forEach(el => {
+    el.onclick = () => {
+      const bracket = el.dataset.bracket;
+      const r = parseInt(el.dataset.r);
+      const m = parseInt(el.dataset.m);
+      const slot = el.dataset.slot;
+      handleMatchClick(bracket, r, m, slot);
+    };
+  });
+}
+
+function handleMatchClick(bracket, r, m, slot) {
+  const t = state.tournament;
+  if (!t) return;
+
+  if (t.format === 'single') {
+    const match = t.wRounds[r][m];
+    const player = slot === 'p1' ? match.p1 : match.p2;
     if (!player || !match.p1 || !match.p2) return;
-    advanceWinner(r, mi, player);
-  };
-}
-
-function createSlot(player, isWinner, r, mi, slotType) {
-  const div = document.createElement('div');
-  div.className = 'match-slot';
-  if (isWinner) div.classList.add('winner');
-  if (!player) div.classList.add('empty');
-  div.dataset.round = r;
-  div.dataset.match = mi;
-  div.dataset.slot = slotType;
-  const nameSpan = document.createElement('span');
-  nameSpan.className = 'slot-name';
-  nameSpan.textContent = player ? player.name : '—';
-  div.appendChild(nameSpan);
-
-  if (player && state.bracket.size < 128) {
-    const stars = document.createElement('div');
-    stars.className = 'stars-mini';
-    for (let i = 1; i <= 5; i++) {
-      let fill = 0;
-      if (player.rating >= i) fill = 100;
-      else if (player.rating > i - 1) fill = 50;
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.innerHTML = `★<div class="star-fill" style="width:${fill}%">★</div>`;
-      stars.appendChild(s);
-    }
-    div.appendChild(stars);
+    advanceSingle(t, r, m, player);
+  } 
+  else if (t.format === 'double') {
+    const player = bracket === 'gf' ? (slot === 'p1' ? t.grandFinal.p1 : t.grandFinal.p2) : 
+                   (bracket === 'w' ? (slot === 'p1' ? t.wRounds[r][m].p1 : t.wRounds[r][m].p2) : 
+                                      (slot === 'p1' ? t.lRounds[r][m].p1 : t.lRounds[r][m].p2));
+    if (!player) return;
+    advanceDouble(t, bracket, r, m, player);
   }
-  return div;
+  saveToStorage();
+  renderTournament();
 }
 
-function plural(n) {
-  if (n % 10 === 1 && n % 100 !== 11) return '';
-  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'а';
-  return 'ей';
+function advanceSingle(t, r, m, player) {
+  const match = t.wRounds[r][m];
+  match.winner = player;
+  if (r + 1 < t.wRounds.length) {
+    const nm = t.wRounds[r + 1][Math.floor(m / 2)];
+    if (m % 2 === 0) nm.p1 = player; else nm.p2 = player;
+  } else {
+    state.champion = player;
+  }
+}
+
+function advanceDouble(t, bracket, r, m, player) {
+  if (bracket === 'gf') {
+    t.grandFinal.winner = player;
+    state.champion = player;
+    return;
+  }
+  if (bracket === 'w') {
+    const match = t.wRounds[r][m];
+    if (match.p1 !== player && match.p2 !== player) return;
+    match.winner = player;
+    const loser = match.p1 === player ? match.p2 : match.p1;
+    
+    // Победитель идет дальше в WB
+    if (r + 1 < t.wRounds.length) {
+      const nm = t.wRounds[r + 1][Math.floor(m / 2)];
+      if (m % 2 === 0) nm.p1 = player; else nm.p2 = player;
+    } else {
+      t.grandFinal.p1 = player; // Победитель WB в гранд-финал
+    }
+
+    // Проигравший падает в LB
+    if (loser && r < t.wRounds.length - 1) {
+      // Индекс раунда в LB, куда падает проигравший
+      const lbRoundIdx = r * 2; 
+      if (lbRoundIdx < t.lRounds.length) {
+        const lbRound = t.lRounds[lbRoundIdx];
+        // Находим свободный слот
+        const freeMatch = lbRound.find(mt => !mt.p1 || !mt.p2);
+        if (freeMatch) { if (!freeMatch.p1) freeMatch.p1 = loser; else freeMatch.p2 = loser; }
+      }
+    }
+  } 
+  else if (bracket === 'l') {
+    const match = t.lRounds[r][m];
+    if (match.p1 !== player && match.p2 !== player) return;
+    match.winner = player;
+    if (r + 1 < t.lRounds.length) {
+      const nm = t.lRounds[r + 1][Math.floor(m / 2)];
+      if (m % 2 === 0) nm.p1 = player; else nm.p2 = player;
+    } else {
+      t.grandFinal.p2 = player; // Победитель LB в гранд-финал
+    }
+  }
 }
 
 function getRoundNames(count) {
@@ -880,295 +830,146 @@ function getRoundNames(count) {
     else if (rem === 4) names.push('1/2');
     else if (rem === 8) names.push('1/4');
     else if (rem === 16) names.push('1/8');
-    else if (rem === 32) names.push('1/16');
-    else if (rem === 64) names.push('1/32');
-    else if (rem === 128) names.push('1/64');
-    else if (rem === 256) names.push('1/128');
-    else if (rem === 512) names.push('1/256');
-    else if (rem === 1024) names.push('1/512');
     else names.push(`R${i + 1}`);
   }
   return names;
 }
 
-// ==================== ADVANCE WINNER ====================
-function advanceWinner(roundIdx, matchIdx, winner) {
-  const bracket = state.bracket;
-  const match = bracket.rounds[roundIdx][matchIdx];
-  match.winner = winner;
-  if (roundIdx + 1 < bracket.rounds.length) {
-    const nextMi = Math.floor(matchIdx / 2);
-    const nextMatch = bracket.rounds[roundIdx + 1][nextMi];
-    const slot = matchIdx % 2 === 0 ? 'p1' : 'p2';
-    if (nextMatch[slot] !== winner) {
-      nextMatch[slot] = winner;
-      resetDownstream(roundIdx + 1, nextMi);
-    }
-  } else {
-    state.champion = winner;
-  }
-  updateMatchDOM(roundIdx, matchIdx);
-  if (roundIdx + 1 < bracket.rounds.length) {
-    updateMatchDOM(roundIdx + 1, Math.floor(matchIdx / 2));
-    updateNextMatches(roundIdx + 1, Math.floor(matchIdx / 2));
-  }
-  if (state.champion) showChampion();
-  saveToStorage();
+// --- RENDER: ROUND ROBIN ---
+function renderRoundRobin(container, rounds) {
+  let html = `<div style="padding: 20px; overflow-y: auto; max-height: 600px;">`;
+  html += `<h3 style="margin-bottom: 15px; color:#60a5fa;">Круговая система</h3>`;
+  rounds.forEach((round, rIdx) => {
+    html += `<div style="margin-bottom: 20px;"><div style="font-weight:bold; margin-bottom:10px; color:#94a3b8;">Тур ${rIdx + 1}</div>`;
+    html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">`;
+    round.forEach((m, mIdx) => {
+      html += `<div class="match">`;
+      html += createSlotHtml(m.p1, m.winner === m.p1, 'rr', rIdx, mIdx, 'p1');
+      html += createSlotHtml(m.p2, m.winner === m.p2, 'rr', rIdx, mIdx, 'p2');
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+
+  document.querySelectorAll('.match-slot').forEach(el => {
+    el.onclick = () => {
+      const r = parseInt(el.dataset.r); const m = parseInt(el.dataset.m); const slot = el.dataset.slot;
+      const match = state.tournament.rounds[r][m];
+      const player = slot === 'p1' ? match.p1 : match.p2;
+      if (!player || !match.p1 || !match.p2) return;
+      match.winner = player;
+      saveToStorage();
+      renderTournament();
+    };
+  });
 }
 
-function resetDownstream(roundIdx, matchIdx) {
-  const bracket = state.bracket;
-  const match = bracket.rounds[roundIdx][matchIdx];
-  const oldWinner = match.winner;
-  match.winner = null;
-  if (roundIdx + 1 < bracket.rounds.length) {
-    const nextMi = Math.floor(matchIdx / 2);
-    const nextMatch = bracket.rounds[roundIdx + 1][nextMi];
-    const slot = matchIdx % 2 === 0 ? 'p1' : 'p2';
-    if (nextMatch[slot] && nextMatch[slot] === oldWinner) {
-      nextMatch[slot] = null;
-      resetDownstream(roundIdx + 1, nextMi);
-    }
-  } else {
-    state.champion = null;
-  }
-}
+// --- RENDER: SWISS ---
+function renderSwiss(container, rounds) {
+  let html = `<div style="padding: 20px; overflow-y: auto; max-height: 600px;"><div class="swiss-rounds">`;
+  rounds.forEach((roundObj, rIdx) => {
+    html += `<div><div class="swiss-round-title">Раунд ${rIdx + 1}</div><div class="swiss-matches">`;
+    roundObj.matches.forEach((m, mIdx) => {
+      html += `<div class="match">`;
+      html += createSlotHtml(m.p1, m.winner === m.p1, 'sw', rIdx, mIdx, 'p1');
+      html += createSlotHtml(m.p2, m.winner === m.p2, 'sw', rIdx, mIdx, 'p2');
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div></div>`;
+  container.innerHTML = html;
 
-function updateMatchDOM(r, mi) {
-  const match = state.bracket.rounds[r][mi];
-  const mDiv = document.querySelector(`.match[data-round="${r}"][data-match="${mi}"]`);
-  if (!mDiv) return;
-  const slots = mDiv.querySelectorAll('.match-slot');
-  updateSlot(slots[0], match.p1, match.winner && match.winner === match.p1);
-  updateSlot(slots[1], match.p2, match.winner && match.winner === match.p2);
-}
-
-function updateSlot(slot, player, isWinner) {
-  slot.classList.toggle('winner', isWinner);
-  slot.classList.toggle('empty', !player);
-  slot.querySelector('.slot-name').textContent = player ? player.name : '—';
-  const stars = slot.querySelector('.stars-mini');
-  if (stars) {
-    if (player) {
-      stars.innerHTML = '';
-      for (let i = 1; i <= 5; i++) {
-        let fill = 0;
-        if (player.rating >= i) fill = 100;
-        else if (player.rating > i - 1) fill = 50;
-        const s = document.createElement('div');
-        s.className = 'star';
-        s.innerHTML = `★<div class="star-fill" style="width:${fill}%">★</div>`;
-        stars.appendChild(s);
+  document.querySelectorAll('.match-slot').forEach(el => {
+    el.onclick = () => {
+      const r = parseInt(el.dataset.r); const m = parseInt(el.dataset.m); const slot = el.dataset.slot;
+      const match = state.tournament.rounds[r].matches[m];
+      if (match.isBye) return; // Bye уже решен
+      const player = slot === 'p1' ? match.p1 : match.p2;
+      if (!player || !match.p1 || !match.p2) return;
+      
+      match.winner = player;
+      const loser = match.p1 === player ? match.p2 : match.p1;
+      match.p1.points += (match.p1 === player ? 1 : 0);
+      match.p2.points += (match.p2 === player ? 1 : 0);
+      match.p1.played.add(match.p2.name); match.p2.played.add(match.p1.name);
+      
+      // Если это финал швейцарки (последний раунд) — определяем победителя
+      if (rIdx === state.tournament.rounds.length - 1 && state.tournament.rounds.length >= state.tournament.maxRounds) {
+         const top = [...state.tournament.players].sort((a,b) => b.points - a.points)[0];
+         state.champion = top;
       }
-    } else stars.innerHTML = '';
-  }
-}
-
-function updateNextMatches(roundIdx, matchIdx) {
-  let r = roundIdx, mi = matchIdx;
-  while (r + 1 < state.bracket.rounds.length) {
-    const nextMi = Math.floor(mi / 2);
-    updateMatchDOM(r + 1, nextMi);
-    r = r + 1;
-    mi = nextMi;
-  }
-  if (state.champion) showChampion();
-}
-
-function showChampion() {
-  const banner = document.getElementById('winnerBanner');
-  const nameEl = document.getElementById('championName');
-  banner.classList.add('show');
-  nameEl.innerHTML = `<span>${escapeHtml(state.champion.name)}</span>`;
-  const stars = document.createElement('div');
-  stars.className = 'star-rating readonly';
-  let starsHtml = '';
-  for (let i = 1; i <= 5; i++) {
-    let fill = 0;
-    if (state.champion.rating >= i) fill = 100;
-    else if (state.champion.rating > i - 1) fill = 50;
-    starsHtml += `<div class="star" style="font-size:1.5rem">★<div class="star-fill" style="width:${fill}%">★</div></div>`;
-  }
-  stars.innerHTML = starsHtml;
-  nameEl.appendChild(stars);
+      saveToStorage();
+      renderTournament();
+    };
+  });
 }
 
 // ==================== ZOOM ====================
 function setZoom(z) {
-  state.zoom = Math.max(0.1, Math.min(2, z));
-  document.getElementById('zoomLabel').textContent = Math.round(state.zoom * 100) + '%';
-  document.getElementById('bracketContent').style.transform = `scale(${state.zoom})`;
+  state.zoom = Math.max(0.2, Math.min(2, z));
+  const label = document.getElementById('zoomLabel');
+  if (label) label.textContent = Math.round(state.zoom * 100) + '%';
+  const content = document.getElementById('bracketContent');
+  if (content) content.style.transform = `scale(${state.zoom})`;
 }
 document.getElementById('zoomIn').addEventListener('click', () => setZoom(state.zoom * 1.2));
 document.getElementById('zoomOut').addEventListener('click', () => setZoom(state.zoom / 1.2));
 document.getElementById('zoomReset').addEventListener('click', () => setZoom(1));
-
 document.getElementById('fitBtn').addEventListener('click', () => {
-  if (!state.bracket) return;
   const viewport = document.getElementById('bracketViewport');
   const content = document.getElementById('bracketContent');
+  if (!viewport || !content) return;
   content.style.transform = 'scale(1)';
   const scale = Math.min(viewport.clientWidth / content.scrollWidth, viewport.clientHeight / content.scrollHeight, 1);
   setZoom(scale);
 });
 
-// ==================== BRACKET SEARCH ====================
-const searchBracket = document.getElementById('searchBracket');
-searchBracket.addEventListener('input', () => {
-  const q = searchBracket.value.trim().toLowerCase();
-  document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-  if (!q || !state.bracket) return;
-  for (const [name, locs] of bracketPlayerLocations) {
-    if (name.toLowerCase().includes(q)) {
-      locs.forEach((loc, idx) => {
-        const mDiv = document.querySelector(`.match[data-round="${loc.r}"][data-match="${loc.m}"]`);
-        if (mDiv) {
-          mDiv.classList.add('highlight');
-          if (idx === 0) mDiv.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        }
-      });
-      break;
-    }
-  }
-});
-
-// ============================================================
-// 💾 ХРАНИЛИЩЕ — ГЛАВНОЕ
-// Один постоянный ключ. Никогда не меняется.
-// При загрузке — миграция со старых ключей (если были).
-// ============================================================
+// ==================== SAVE/LOAD ====================
 function saveToStorage() {
   try {
     const data = {
-      formatVersion: STORAGE_FORMAT_VERSION,
-      lastSave: new Date().toISOString(),
       tournamentName: document.getElementById('tournamentName').value,
+      format: document.getElementById('formatSelect').value,
       bracketSize: document.getElementById('bracketSize').value,
       players: state.players,
-      bracket: state.bracket,
+      tournament: state.tournament,
       champion: state.champion
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.warn('Не удалось сохранить (возможно, переполнено хранилище):', e);
-    showStatus('⚠️ Не удалось сохранить: хранилище браузера переполнено. Сделайте экспорт в файл.', 'warn', 8000);
-  }
+  } catch (e) { console.warn('Ошибка сохранения', e); }
 }
 
 function loadFromStorage() {
-  // 1. Пытаемся загрузить из ОСНОВНОГО ключа
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (data && Array.isArray(data.players)) {
-        applyLoadedData(data);
-        console.log('[Storage] Загружено из основного ключа:', STORAGE_KEY, '-', data.players.length, 'команд');
-        return true;
-      }
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEYS[0]);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data.players) {
+      state.players = data.players;
+      state.tournament = data.tournament || null;
+      state.champion = data.champion || null;
+      if (data.tournamentName) document.getElementById('tournamentName').value = data.tournamentName;
+      if (data.format) document.getElementById('formatSelect').value = data.format;
+      if (data.bracketSize) document.getElementById('bracketSize').value = data.bracketSize;
+      updatePlayerIndex();
+      return true;
     }
-  } catch (e) {
-    console.warn('[Storage] Ошибка чтения основного ключа:', e);
-  }
-
-  // 2. Если нет — ищем в СТАРЫХ ключах и мигрируем
-  for (const legacyKey of LEGACY_KEYS) {
-    try {
-      const raw = localStorage.getItem(legacyKey);
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (data && Array.isArray(data.players)) {
-          applyLoadedData(data);
-          saveToStorage(); // сразу сохраняем в новый ключ
-          console.log('[Storage] Миграция с ключа', legacyKey, '→', STORAGE_KEY, '-', data.players.length, 'команд');
-          return true;
-        }
-      }
-    } catch (e) {
-      console.warn('[Storage] Ошибка миграции с', legacyKey, ':', e);
-    }
-  }
-
-  // 3. Данных нет — пользователь заходит впервые
-  console.log('[Storage] Данных не найдено. Первый визит этого пользователя.');
+  } catch (e) { console.warn('Ошибка загрузки', e); }
   return false;
 }
 
-function applyLoadedData(data) {
-  state.players = data.players || [];
-  state.bracket = data.bracket || null;
-  state.champion = data.champion || null;
-  if (data.tournamentName) document.getElementById('tournamentName').value = data.tournamentName;
-  if (data.bracketSize) document.getElementById('bracketSize').value = data.bracketSize;
-  updatePlayerIndex();
-}
-
-// ==================== BUTTONS ====================
-document.getElementById('generateBtn').addEventListener('click', () => {
-  state.tournamentName = document.getElementById('tournamentName').value.trim();
-  state.bracketSize = document.getElementById('bracketSize').value;
-  state.renderMode = document.getElementById('renderMode').value;
-  generateBracket('auto');
-});
-
-document.getElementById('seedBtn').addEventListener('click', () => {
-  if (state.players.length < 2) { showStatus('Добавьте минимум 2 команды', 'info'); return; }
-  state.bracketSize = document.getElementById('bracketSize').value;
-  state.players.sort((a, b) => b.rating - a.rating);
-  updatePlayerIndex();
-  filterPlayers();
-  generateBracket('seeded');
-});
-
-document.getElementById('randomizeBtn').addEventListener('click', () => {
-  if (state.players.length < 2) { showStatus('Добавьте минимум 2 команды', 'info'); return; }
-  state.bracketSize = document.getElementById('bracketSize').value;
-  state.players = shuffle(state.players);
-  updatePlayerIndex();
-  filterPlayers();
-  generateBracket('random');
-});
-
-document.getElementById('resetBtn').addEventListener('click', () => {
-  if (!confirm('Сбросить ТОЛЬКО сетку (команды останутся)?')) return;
-  state.bracket = null;
-  state.champion = null;
-  bracketPlayerLocations.clear();
-  renderBracketView();
-  saveToStorage();
-  showStatus('Сетка сброшена. Команды сохранены.', 'info');
-});
-
 // ==================== INIT ====================
 (function init() {
-  const loaded = loadFromStorage();
-  if (!loaded) {
-    // Первый визит — показываем демо, но НЕ сохраняем принудительно.
-    // Если пользователь что-то изменит (добавит/удалит) — сохранится автоматически.
-    const demo = [
-      { name: 'Иван', rating: 5.0 },
-      { name: 'Мария', rating: 4.5 },
-      { name: 'Алексей', rating: 3.5 },
-      { name: 'Ольга', rating: 5.0 },
-      { name: 'Дмитрий', rating: 2.0 },
-      { name: 'Анна', rating: 4.0 },
-      { name: 'Сергей', rating: 3.0 },
-      { name: 'Елена', rating: 1.5 }
-    ];
-    demo.forEach(p => {
-      const copy = { ...p };
-      state.players.push(copy);
-      playerIndex.set(copy.name, copy);
-    });
+  if (!loadFromStorage()) {
+    // Демо
+    const demo = [['Иван', 5], ['Мария', 4.5], ['Алексей', 3.5], ['Ольга', 5], ['Дмитрий', 2], ['Анна', 4], ['Сергей', 3], ['Елена', 1.5]];
+    demo.forEach(([name, rating]) => { const p = { name, rating }; state.players.push(p); playerIndex.set(name, p); });
   }
-  updatePlayerIndex();
-  filterPlayers();
-  updateStats();
-  if (state.bracket) {
-    buildBracketIndex();
-    renderBracketView();
-    if (state.champion) showChampion();
-  }
+  updatePlayerIndex(); filterPlayers(); updateStats();
+  renderTournament();
 })();
 </script>
 </body>
