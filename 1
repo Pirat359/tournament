@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Турнирный Генератор — 1000+ команд</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 1600px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 25px; }
+  h1 {
+    font-size: 2.2rem;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  header p { color: #94a3b8; font-size: 0.95rem; }
+
+  .panel {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+  }
+  textarea { min-height: 100px; resize: vertical; font-family: monospace; font-size: 0.85rem; }
+
+  button {
+    padding: 9px 18px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(96,165,250,0.4); }
+  button:active { transform: translateY(0); }
+  button.secondary { background: #334155; }
+  button.secondary:hover { background: #475569; box-shadow: none; }
+  button.danger { background: #dc2626; }
+  button.danger:hover { background: #ef4444; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+
+  /* ====== STAR RATING ====== */
+  .star-rating { display: inline-flex; gap: 2px; cursor: pointer; user-select: none; }
+  .star-rating .star { font-size: 1.1rem; color: #334155; transition: color 0.15s, transform 0.15s; line-height: 1; }
+  .star-rating .star.filled { color: #fbbf24; }
+  .star-rating .star.hover { color: #fde68a; transform: scale(1.15); }
+  .star-rating.readonly .star { pointer-events: none; }
+
+  /* ====== ADD FORM ====== */
+  .add-form {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 700px) { .add-form { grid-template-columns: 1fr; } }
+
+  .rating-input-wrap {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rating-input-wrap label { margin: 0; font-size: 0.75rem; }
+
+  /* ====== PLAYERS LIST (виртуализированный) ====== */
+  .players-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    padding: 10px;
+    background: #0f172a;
+    border-radius: 8px;
+    border: 1px solid #334155;
+  }
+  .players-toolbar input[type="search"] { flex: 1; min-width: 200px; }
+  .players-toolbar .stat {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .players-toolbar .stat strong { color: #60a5fa; }
+
+  .players-viewport {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    background: #0f172a;
+    position: relative;
+  }
+  .players-spacer { position: relative; }
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #1e293b;
+    height: 48px;
+    position: absolute;
+    left: 0; right: 0;
+    background: #0f172a;
+  }
+  .player-row:hover { background: #1e293b; }
+  .player-row .seed {
+    background: #1e293b;
+    color: #60a5fa;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .player-row .name { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .player-row .remove {
+    cursor: pointer;
+    color: #f87171;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .player-row .remove:hover { background: rgba(239,68,68,0.2); color: #ef4444; }
+
+  .empty-list {
+    text-align: center;
+    padding: 30px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  /* ====== BRACKET ====== */
+  .bracket-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding: 10px;
+    background: #0f172a;
+    border-radius: 8px;
+    border: 1px solid #334155;
+  }
+  .bracket-toolbar .stat { color: #94a3b8; font-size: 0.85rem; }
+  .bracket-toolbar .stat strong { color: #60a5fa; }
+  .bracket-toolbar input[type="search"] { flex: 1; min-width: 180px; max-width: 300px; }
+
+  .zoom-controls { display: flex; gap: 4px; align-items: center; }
+  .zoom-controls button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    min-width: 32px;
+  }
+  .zoom-controls .zoom-label {
+    padding: 0 8px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    min-width: 45px;
+    text-align: center;
+  }
+
+  .bracket-viewport {
+    overflow: auto;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    background: #0f172a;
+    height: 600px;
+    position: relative;
+    user-select: none;
+  }
+  .bracket-content {
+    position: relative;
+    transform-origin: 0 0;
+  }
+  .bracket {
+    display: flex;
+    gap: 24px;
+    padding: 16px;
+    min-width: min-content;
+  }
+  .round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 4px;
+    min-width: 170px;
+    flex-shrink: 0;
+  }
+  .round-title {
+    text-align: center;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+    background: #0f172a;
+    padding: 4px 0;
+    z-index: 2;
+  }
+  .round-count {
+    text-align: center;
+    font-size: 0.65rem;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+  .match {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .match-slot {
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #334155;
+    cursor: pointer;
+    transition: background 0.1s;
+    min-height: 26px;
+  }
+  .match-slot:last-child { border-bottom: none; }
+  .match-slot:hover { background: #273449; }
+  .match-slot.winner { background: rgba(34,197,94,0.12); color: #86efac; }
+  .match-slot.winner .slot-name::after { content: ' ✓'; color: #22c55e; }
+  .match-slot.empty { color: #475569; font-style: italic; }
+  .match-slot .slot-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .match-slot .stars-mini { display: flex; gap: 0; flex-shrink: 0; }
+  .match-slot .stars-mini .star { font-size: 0.6rem; color: #334155; }
+  .match-slot .stars-mini .star.filled { color: #fbbf24; }
+
+  /* Компактный режим для больших сеток */
+  .bracket.compact .match-slot { padding: 3px 6px; font-size: 0.7rem; min-height: 20px; }
+  .bracket.compact .round { min-width: 130px; gap: 2px; }
+  .bracket.compact .bracket { gap: 14px; }
+  .bracket.compact .match-slot .stars-mini { display: none; }
+
+  .bracket.ultra-compact .match-slot { padding: 2px 5px; font-size: 0.65rem; min-height: 16px; }
+  .bracket.ultra-compact .round { min-width: 110px; gap: 1px; }
+  .bracket.ultra-compact .bracket { gap: 10px; }
+  .bracket.ultra-compact .stars-mini { display: none; }
+
+  .match.highlight { box-shadow: 0 0 0 2px #fbbf24; }
+  .match-slot.highlight { background: rgba(251,191,36,0.2); }
+
+  /* Status */
+  .status {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.88rem;
+    display: none;
+  }
+  .status.show { display: block; }
+  .status.info { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+  .status.success { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+  .status.warn { background: rgba(251,191,36,0.15); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
+  .status.error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+
+  .winner-banner {
+    text-align: center;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.05));
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 12px;
+    margin-top: 20px;
+    display: none;
+  }
+  .winner-banner.show { display: block; }
+  .winner-banner h2 { color: #fbbf24; margin-bottom: 10px; font-size: 1.3rem; }
+  .winner-banner .champion {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fde68a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: #64748b; }
+  .empty-state h3 { color: #94a3b8; margin-bottom: 10px; }
+
+  .tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #334155; flex-wrap: wrap; }
+  .tab {
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-weight: 600;
+    border-radius: 0;
+    font-size: 0.9rem;
+  }
+  .tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+  .tab:hover { background: rgba(96,165,250,0.05); transform: none; box-shadow: none; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 15px;
+    align-items: end;
+  }
+  @media (max-width: 768px) { .controls { grid-template-columns: 1fr; } }
+
+  .progress-bar {
+    height: 4px;
+    background: #334155;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 10px;
+    display: none;
+  }
+  .progress-bar.show { display: block; }
+  .progress-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    width: 0%;
+    transition: width 0.2s;
+  }
+
+  .info-hint {
+    background: rgba(96,165,250,0.08);
+    border: 1px solid rgba(96,165,250,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #93c5fd;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .info-hint strong { color: #bfdbfe; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🏆 Турнирный Генератор</h1>
+    <p>Поддержка 1000+ команд · рейтинг 5 звёзд · посев · виртуализация</p>
+  </header>
+
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" data-tab="settings">⚙️ Настройки</button>
+      <button class="tab" data-tab="players">👥 Участники <span id="playerTabCount"></span></button>
+      <button class="tab" data-tab="bracket">🏆 Сетка</button>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-content active" id="tab-settings">
+      <div class="controls">
+        <div>
+          <label>Название турнира</label>
+          <input type="text" id="tournamentName" placeholder="Например: Чемпионат мира 2025">
+        </div>
+        <div>
+          <label>Размер сетки</label>
+          <select id="bracketSize">
+            <option value="auto">Авто (по числу участников)</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+            <option value="32">32</option>
+            <option value="64">64</option>
+            <option value="128">128</option>
+            <option value="256">256</option>
+            <option value="512">512</option>
+            <option value="1024">1024</option>
+            <option value="2048">2048</option>
+            <option value="4096">4096</option>
+          </select>
+        </div>
+        <div>
+          <label>Режим отображения</label>
+          <select id="renderMode">
+            <option value="virtual">Виртуальный (рекомендуется для 100+)</option>
+            <option value="full">Полный (для небольших сеток)</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="generateBtn">⚡ Сгенерировать сетку</button>
+        <button class="secondary" id="seedBtn">🌱 Посев по рейтингу</button>
+        <button class="secondary" id="randomizeBtn">🎲 Случайная жеребьёвка</button>
+        <button class="secondary danger" id="resetBtn">🔄 Сбросить</button>
+      </div>
+      <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+    </div>
+
+    <!-- PLAYERS -->
+    <div class="tab-content" id="tab-players">
+      <div class="info-hint">
+        💡 <strong>Совет для 1000+ команд:</strong> используйте «Массово» — вставьте список, каждый с новой строки в формате <code>Имя,звёзды</code>. Рейтинг по умолчанию — 3★.
+      </div>
+
+      <label>Добавить участника / команду</label>
+      <div class="add-form">
+        <input type="text" id="playerInput" placeholder="Имя участника или название команды">
+        <div class="rating-input-wrap">
+          <label>Рейтинг:</label>
+          <div class="star-rating" id="newPlayerRating" data-rating="3">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+          </div>
+        </div>
+        <button id="addPlayerBtn">+ Добавить</button>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+        <button class="secondary" id="bulkAddBtn">📋 Массово</button>
+        <button class="secondary" id="demoBtn">🎯 Демо 1000 команд</button>
+        <button class="secondary danger" id="clearPlayersBtn" style="margin-left:auto;">Очистить всех</button>
+      </div>
+      <textarea id="bulkInput" placeholder="Иван Петров,4&#10;Мария Сидорова,5&#10;Алексей Смирнов,2" style="display:none; margin-bottom:10px;"></textarea>
+
+      <div class="players-toolbar">
+        <input type="search" id="searchPlayers" placeholder="🔍 Поиск по имени...">
+        <span class="stat">Всего: <strong id="playerCount">0</strong></span>
+        <span class="stat">Средний: <strong id="avgRating" style="color:#fbbf24">—</strong></span>
+      </div>
+
+      <div class="players-viewport" id="playersViewport">
+        <div class="players-spacer" id="playersSpacer">
+          <div class="empty-list" id="emptyList">Пока нет участников. Добавьте вручную или через «Массово».</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRACKET -->
+    <div class="tab-content" id="tab-bracket">
+      <div class="status" id="status"></div>
+
+      <div class="bracket-toolbar" id="bracketToolbar" style="display:none;">
+        <span class="stat">Сетка: <strong id="bracketSizeInfo">—</strong></span>
+        <span class="stat">Матчей: <strong id="matchCount">—</strong></span>
+        <input type="search" id="searchBracket" placeholder="🔍 Найти команду в сетке...">
+        <div class="zoom-controls">
+          <button class="secondary" id="zoomOut" title="Уменьшить">−</button>
+          <span class="zoom-label" id="zoomLabel">100%</span>
+          <button class="secondary" id="zoomIn" title="Увеличить">+</button>
+          <button class="secondary" id="zoomReset" title="Сбросить">100%</button>
+        </div>
+        <button class="secondary" id="fitBtn" title="Вписать сетку в экран">⊡ Вписать</button>
+      </div>
+
+      <div class="bracket-viewport" id="bracketViewport" style="display:none;">
+        <div class="bracket-content" id="bracketContent">
+          <div class="bracket" id="bracketEl"></div>
+        </div>
+      </div>
+
+      <div class="empty-state" id="bracketEmpty">
+        <h3>Сетка ещё не создана</h3>
+        <p>Добавьте участников и нажмите «Сгенерировать сетку»</p>
+      </div>
+
+      <div class="winner-banner" id="winnerBanner">
+        <h2>🎉 Победитель турнира</h2>
+        <div class="champion" id="championName">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== STATE ====================
+let state = {
+  tournamentName: '',
+  bracketSize: 'auto',
+  renderMode: 'virtual',
+  players: [],          // [{name, rating}]
+  bracket: null,        // {rounds: [[...]], size}
+  champion: null,
+  zoom: 1
+};
+
+// Индексы для быстрого поиска
+let playerIndex = new Map();  // name -> player object
+let bracketPlayerLocations = new Map(); // name -> [{r, m, slot}]
+
+// ==================== UTILS ====================
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function nextPowerOf2(n) { let p = 1; while (p < n) p *= 2; return p; }
+
+function showStatus(msg, type = 'info', duration = 4500) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status show ' + type;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${name}"]`).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ==================== STAR WIDGET ====================
+function initStarWidget(el, initial = 3, onChange = null) {
+  el.dataset.rating = initial;
+  const stars = el.querySelectorAll('.star');
+  function paint(r) {
+    stars.forEach((s, i) => {
+      s.classList.toggle('filled', i < r);
+      s.classList.remove('hover');
+    });
+  }
+  paint(initial);
+  stars.forEach((star, idx) => {
+    star.addEventListener('mouseenter', () => {
+      stars.forEach((s, i) => {
+        s.classList.toggle('hover', i <= idx);
+        s.classList.toggle('filled', i <= idx);
+      });
+    });
+    star.addEventListener('mouseleave', () => paint(parseInt(el.dataset.rating)));
+    star.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const val = idx + 1;
+      el.dataset.rating = val;
+      paint(val);
+      if (onChange) onChange(val);
+    });
+  });
+  el.addEventListener('mouseleave', () => paint(parseInt(el.dataset.rating)));
+}
+
+// ==================== TABS ====================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'bracket' && state.bracket) {
+      // Перерисовать после переключения (для правильных размеров)
+      requestAnimationFrame(() => renderBracketView());
+    }
+  });
+});
+
+// ==================== PLAYERS LIST (виртуализация) ====================
+const ROW_HEIGHT = 48;
+let filteredPlayers = [];  // отфильтрованный список
+let playersViewport, playersSpacer, searchPlayersInput;
+
+function updatePlayerIndex() {
+  playerIndex.clear();
+  state.players.forEach(p => playerIndex.set(p.name, p));
+}
+
+function filterPlayers() {
+  const q = searchPlayersInput.value.trim().toLowerCase();
+  if (!q) {
+    filteredPlayers = state.players;
+  } else {
+    filteredPlayers = state.players.filter(p => p.name.toLowerCase().includes(q));
+  }
+  renderPlayersViewport();
+}
+
+function renderPlayersViewport() {
+  playersViewport = playersViewport || document.getElementById('playersViewport');
+  playersSpacer = playersSpacer || document.getElementById('playersSpacer');
+
+  const total = filteredPlayers.length;
+  playersSpacer.style.height = (total * ROW_HEIGHT) + 'px';
+
+  const emptyList = document.getElementById('emptyList');
+  if (total === 0) {
+    emptyList.style.display = 'block';
+    emptyList.textContent = state.players.length === 0
+      ? 'Пока нет участников. Добавьте вручную или через «Массово».'
+      : 'Никого не найдено по запросу.';
+  } else {
+    emptyList.style.display = 'none';
+  }
+
+  // Удаляем все строки
+  playersSpacer.querySelectorAll('.player-row').forEach(r => r.remove());
+
+  // Отрисовываем только видимые
+  const scrollTop = playersViewport.scrollTop;
+  const viewH = playersViewport.clientHeight;
+  const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - 2);
+  const endIdx = Math.min(total, Math.ceil((scrollTop + viewH) / ROW_HEIGHT) + 2);
+
+  const frag = document.createDocumentFragment();
+  for (let i = startIdx; i < endIdx; i++) {
+    const p = filteredPlayers[i];
+    const realIdx = state.players.indexOf(p); // для корректного удаления
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.style.top = (i * ROW_HEIGHT) + 'px';
+    row.innerHTML = `
+      <span class="seed">#${realIdx + 1}</span>
+      <span class="name">${escapeHtml(p.name)}</span>
+      <span class="rating-mount"></span>
+      <span class="remove" data-idx="${realIdx}" title="Удалить">×</span>
+    `;
+    const mount = row.querySelector('.rating-mount');
+    const widget = document.createElement('div');
+    widget.className = 'star-rating';
+    widget.innerHTML = '<span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>';
+    mount.appendChild(widget);
+    initStarWidget(widget, p.rating, (val) => {
+      p.rating = val;
+      updateStats();
+    });
+    frag.appendChild(row);
+  }
+  playersSpacer.appendChild(frag);
+
+  // Обработчик удаления через делегирование
+  playersSpacer.onclick = (e) => {
+    const rm = e.target.closest('.remove');
+    if (rm) {
+      const idx = parseInt(rm.dataset.idx);
+      state.players.splice(idx, 1);
+      updatePlayerIndex();
+      filterPlayers();
+      updateStats();
+      saveToStorage();
+    }
+  };
+}
+
+let rafId = null;
+document.getElementById('playersViewport').addEventListener('scroll', () => {
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(renderPlayersViewport);
+});
+
+searchPlayersInput = document.getElementById('searchPlayers');
+searchPlayersInput.addEventListener('input', filterPlayers);
+
+function updateStats() {
+  document.getElementById('playerCount').textContent = state.players.length;
+  document.getElementById('playerTabCount').textContent = state.players.length ? `(${state.players.length})` : '';
+  const avgEl = document.getElementById('avgRating');
+  if (state.players.length === 0) {
+    avgEl.textContent = '—';
+  } else {
+    const sum = state.players.reduce((a, p) => a + p.rating, 0);
+    avgEl.textContent = (sum / state.players.length).toFixed(1) + '★';
+  }
+}
+
+// ==================== ADD PLAYERS ====================
+const newPlayerRating = document.getElementById('newPlayerRating');
+initStarWidget(newPlayerRating, 3);
+
+function addPlayer() {
+  const input = document.getElementById('playerInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (playerIndex.has(name)) { showStatus('Такая команда уже есть!', 'warn'); return; }
+  const rating = parseInt(newPlayerRating.dataset.rating) || 3;
+  state.players.push({ name, rating });
+  playerIndex.set(name, state.players[state.players.length - 1]);
+  input.value = '';
+  input.focus();
+  filterPlayers();
+  updateStats();
+  saveToStorage();
+}
+document.getElementById('addPlayerBtn').addEventListener('click', addPlayer);
+document.getElementById('playerInput').addEventListener('keypress', e => { if (e.key === 'Enter') addPlayer(); });
+
+document.getElementById('bulkAddBtn').addEventListener('click', () => {
+  const ta = document.getElementById('bulkInput');
+  ta.style.display = ta.style.display === 'block' ? 'none' : 'block';
+  if (ta.style.display === 'block') ta.focus();
+});
+
+document.getElementById('bulkInput').addEventListener('blur', (e) => {
+  const ta = e.target;
+  const lines = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!lines.length) { ta.style.display = 'none'; return; }
+
+  let added = 0;
+  lines.forEach(line => {
+    const parts = line.split(',').map(s => s.trim());
+    const name = parts[0];
+    let rating = parseInt(parts[1]);
+    if (isNaN(rating) || rating < 1) rating = 3;
+    if (rating > 5) rating = 5;
+    if (name && !playerIndex.has(name)) {
+      const p = { name, rating };
+      state.players.push(p);
+      playerIndex.set(name, p);
+      added++;
+    }
+  });
+  ta.value = '';
+  ta.style.display = 'none';
+  filterPlayers();
+  updateStats();
+  saveToStorage();
+  showStatus(`Добавлено: ${added} команд. Всего: ${state.players.length}`, 'success');
+});
+
+document.getElementById('clearPlayersBtn').addEventListener('click', () => {
+  if (state.players.length && confirm(`Удалить всех участников (${state.players.length})?`)) {
+    state.players = [];
+    playerIndex.clear();
+    filterPlayers();
+    updateStats();
+    saveToStorage();
+  }
+});
+
+// Демо 1000 команд
+document.getElementById('demoBtn').addEventListener('click', () => {
+  if (state.players.length > 0) {
+    if (!confirm('Это добавит ещё 1000 демо-команд к текущему списку. Продолжить?')) return;
+  }
+  const prefixes = ['ФК', 'FC', 'Динамо', 'Спартак', 'ЦСКА', 'Локомотив', 'Зенит', 'Рубин', 'Ахмат', 'Крылья'];
+  const cities = ['Москва', 'Питер', 'Казань', 'Сочи', 'Ростов', 'Уфа', 'Омск', 'Томск', 'Пермь', 'Тула', 'Самара', 'Волга', 'Урал', 'Сибирь', 'Восток'];
+  
+  const batch = [];
+  for (let i = 0; i < 1000; i++) {
+    const name = `${prefixes[i % prefixes.length]} ${cities[(i * 7) % cities.length]}-${Math.floor(i / prefixes.length) + 1}`;
+    const rating = 1 + Math.floor(Math.random() * 5);
+    if (!playerIndex.has(name)) {
+      batch.push({ name, rating });
+    }
+  }
+  batch.forEach(p => {
+    state.players.push(p);
+    playerIndex.set(p.name, p);
+  });
+  filterPlayers();
+  updateStats();
+  saveToStorage();
+  showStatus(`Добавлено ${batch.length} демо-команд. Всего: ${state.players.length}`, 'success');
+});
+
+// ==================== BRACKET GENERATION ====================
+function generateBracket(mode = 'auto') {
+  if (state.players.length < 2) {
+    showStatus('Нужно минимум 2 участника', 'info');
+    switchTab('players');
+    return;
+  }
+
+  let size;
+  if (state.bracketSize === 'auto') size = nextPowerOf2(state.players.length);
+  else {
+    size = parseInt(state.bracketSize);
+    if (state.players.length > size) {
+      showStatus(`Участников (${state.players.length}) больше, чем мест (${size}). Увеличьте размер.`, 'error');
+      return;
+    }
+  }
+
+  if (size > 4096) {
+    showStatus(`Слишком большой размер сетки: ${size}. Максимум — 4096.`, 'error');
+    return;
+  }
+
+  showStatus('Генерация сетки... Пожалуйста, подождите.', 'info', 2000);
+
+  // Используем setTimeout чтобы дать UI обновиться
+  setTimeout(() => {
+    let orderedPlayers;
+    if (mode === 'seeded') {
+      orderedPlayers = [...state.players].sort((a, b) => b.rating - a.rating);
+    } else if (mode === 'random') {
+      orderedPlayers = shuffle(state.players);
+    } else {
+      orderedPlayers = [...state.players];
+    }
+
+    const seeded = seededOrder(orderedPlayers, size);
+    const slots = [...seeded, ...Array(size - seeded.length).fill(null)];
+
+    const rounds = [];
+    const round1 = [];
+    for (let i = 0; i < size; i += 2) {
+      const p1 = slots[i];
+      const p2 = slots[i + 1];
+      let winner = null;
+      if (p1 && !p2) winner = p1;
+      else if (!p1 && p2) winner = p2;
+      round1.push({ p1, p2, winner });
+    }
+    rounds.push(round1);
+
+    let count = round1.length;
+    while (count > 1) {
+      const next = [];
+      for (let i = 0; i < count / 2; i++) next.push({ p1: null, p2: null, winner: null });
+      rounds.push(next);
+      count = next.length;
+    }
+
+    // Автопроход bye
+    for (let i = 0; i < round1.length; i++) {
+      const m = round1[i];
+      if (m.winner) {
+        const nm = rounds[1][Math.floor(i / 2)];
+        if (i % 2 === 0) nm.p1 = m.winner; else nm.p2 = m.winner;
+      }
+    }
+
+    state.bracket = { rounds, size };
+    state.champion = null;
+    buildBracketIndex();
+    renderBracketView();
+    switchTab('bracket');
+    showStatus(`Сетка на ${size} мест готова. Матчей: ${size - 1}.`, 'success');
+    saveToStorage();
+  }, 20);
+}
+
+function seededOrder(sorted, size) {
+  if (sorted.length === 0) return [];
+  const positions = new Array(size).fill(null);
+  const seedArr = standardSeed(size);
+  for (let i = 0; i < sorted.length; i++) {
+    positions[seedArr[i] - 1] = sorted[i];
+  }
+  return positions;
+}
+
+function standardSeed(size) {
+  let seeds = [1, 2];
+  while (seeds.length < size) {
+    const len = seeds.length;
+    const ns = [];
+    for (const s of seeds) { ns.push(s); ns.push(2 * len + 1 - s); }
+    seeds = ns;
+  }
+  return seeds;
+}
+
+function buildBracketIndex() {
+  bracketPlayerLocations.clear();
+  if (!state.bracket) return;
+  state.bracket.rounds.forEach((round, r) => {
+    round.forEach((m, mi) => {
+      if (m.p1) {
+        if (!bracketPlayerLocations.has(m.p1.name)) bracketPlayerLocations.set(m.p1.name, []);
+        bracketPlayerLocations.get(m.p1.name).push({ r, m: mi, slot: 'p1' });
+      }
+      if (m.p2) {
+        if (!bracketPlayerLocations.has(m.p2.name)) bracketPlayerLocations.set(m.p2.name, []);
+        bracketPlayerLocations.get(m.p2.name).push({ r, m: mi, slot: 'p2' });
+      }
+    });
+  });
+}
+
+// ==================== BRACKET RENDER (виртуализация) ====================
+const CARD_H = 54;    // базовая высота матча
+const CARD_GAP = 6;   // базовый отступ
+
+function computeLayout(size) {
+  // Вычисляем высоту раунда и позиции матчей
+  const totalH = Math.max(600, size * (CARD_H + CARD_GAP) * 0.5);
+  return totalH;
+}
+
+function renderBracketView() {
+  const viewport = document.getElementById('bracketViewport');
+  const toolbar = document.getElementById('bracketToolbar');
+  const empty = document.getElementById('bracketEmpty');
+  const content = document.getElementById('bracketContent');
+  const bracketEl = document.getElementById('bracketEl');
+
+  if (!state.bracket) {
+    viewport.style.display = 'none';
+    toolbar.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  viewport.style.display = 'block';
+  toolbar.style.display = 'flex';
+  empty.style.display = 'none';
+
+  const { rounds, size } = state.bracket;
+  document.getElementById('bracketSizeInfo').textContent = size + ' мест';
+  document.getElementById('matchCount').textContent = (size - 1);
+
+  // Применяем масштаб
+  content.style.transform = `scale(${state.zoom})`;
+
+  // Выбираем класс компактности
+  bracketEl.className = 'bracket';
+  if (size >= 512) bracketEl.classList.add('ultra-compact');
+  else if (size >= 128) bracketEl.classList.add('compact');
+
+  // Если сетка огромная — используем "сжатую" высоту
+  const effectiveCardH = size >= 512 ? 18 : (size >= 128 ? 24 : CARD_H);
+  const effectiveGap = size >= 512 ? 1 : (size >= 128 ? 2 : CARD_GAP);
+
+  // Общая высота первого раунда
+  const round1H = (size / 2) * (effectiveCardH + effectiveGap);
+
+  bracketEl.innerHTML = '';
+  const roundNames = getRoundNames(rounds.length);
+
+  rounds.forEach((round, rIdx) => {
+    const roundDiv = document.createElement('div');
+    roundDiv.className = 'round';
+    roundDiv.style.minHeight = round1H + 'px';
+
+    const title = document.createElement('div');
+    title.className = 'round-title';
+    title.textContent = roundNames[rIdx];
+    roundDiv.appendChild(title);
+
+    const count = document.createElement('div');
+    count.className = 'round-count';
+    count.textContent = `${round.length} матч${plural(round.length)}`;
+    roundDiv.appendChild(count);
+
+    round.forEach((m, mIdx) => {
+      const mDiv = document.createElement('div');
+      mDiv.className = 'match';
+      mDiv.dataset.round = rIdx;
+      mDiv.dataset.match = mIdx;
+
+      mDiv.appendChild(createSlot(m.p1, m.winner && m.winner === m.p1, rIdx, mIdx, 'p1'));
+      mDiv.appendChild(createSlot(m.p2, m.winner && m.winner === m.p2, rIdx, mIdx, 'p2'));
+
+      roundDiv.appendChild(mDiv);
+    });
+
+    bracketEl.appendChild(roundDiv);
+  });
+
+  // Обработчик клика (делегирование)
+  bracketEl.onclick = (e) => {
+    const slot = e.target.closest('.match-slot');
+    if (!slot) return;
+    const r = +slot.dataset.round;
+    const mi = +slot.dataset.match;
+    const type = slot.dataset.slot;
+    const match = state.bracket.rounds[r][mi];
+    const player = type === 'p1' ? match.p1 : match.p2;
+    if (!player || !match.p1 || !match.p2) return;
+    advanceWinner(r, mi, player);
+  };
+}
+
+function createSlot(player, isWinner, r, mi, slotType) {
+  const div = document.createElement('div');
+  div.className = 'match-slot';
+  if (isWinner) div.classList.add('winner');
+  if (!player) div.classList.add('empty');
+  div.dataset.round = r;
+  div.dataset.match = mi;
+  div.dataset.slot = slotType;
+
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'slot-name';
+  nameSpan.textContent = player ? player.name : '—';
+
+  div.appendChild(nameSpan);
+
+  // Звёзды только для маленьких сеток (оптимизация)
+  if (player && state.bracket.size < 128) {
+    const stars = document.createElement('div');
+    stars.className = 'stars-mini';
+    for (let i = 1; i <= 5; i++) {
+      const s = document.createElement('span');
+      s.className = 'star' + (i <= player.rating ? ' filled' : '');
+      s.textContent = '★';
+      stars.appendChild(s);
+    }
+    div.appendChild(stars);
+  }
+
+  return div;
+}
+
+function plural(n) {
+  if (n % 10 === 1 && n % 100 !== 11) return '';
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'а';
+  return 'ей';
+}
+
+function getRoundNames(count) {
+  const names = [];
+  for (let i = 0; i < count; i++) {
+    const rem = Math.pow(2, count - i);
+    if (rem === 2) names.push('Финал');
+    else if (rem === 4) names.push('1/2');
+    else if (rem === 8) names.push('1/4');
+    else if (rem === 16) names.push('1/8');
+    else if (rem === 32) names.push('1/16');
+    else if (rem === 64) names.push('1/32');
+    else if (rem === 128) names.push('1/64');
+    else if (rem === 256) names.push('1/128');
+    else if (rem === 512) names.push('1/256');
+    else if (rem === 1024) names.push('1/512');
+    else names.push(`R${i + 1}`);
+  }
+  return names;
+}
+
+// ==================== ADVANCE WINNER ====================
+function advanceWinner(roundIdx, matchIdx, winner) {
+  const bracket = state.bracket;
+  const match = bracket.rounds[roundIdx][matchIdx];
+  match.winner = winner;
+
+  // Обновляем следующий раунд
+  if (roundIdx + 1 < bracket.rounds.length) {
+    const nextMi = Math.floor(matchIdx / 2);
+    const nextMatch = bracket.rounds[roundIdx + 1][nextMi];
+    const slot = matchIdx % 2 === 0 ? 'p1' : 'p2';
+    if (nextMatch[slot] !== winner) {
+      nextMatch[slot] = winner;
+      resetDownstream(roundIdx + 1, nextMi);
+    }
+  } else {
+    state.champion = winner;
+  }
+
+  // Локально обновляем DOM вместо полного рендера
+  updateMatchDOM(roundIdx, matchIdx);
+  if (roundIdx + 1 < bracket.rounds.length) {
+    updateMatchDOM(roundIdx + 1, Math.floor(matchIdx / 2));
+    // Обновить дальше только если были изменения
+    updateNextMatches(roundIdx + 1, Math.floor(matchIdx / 2));
+  }
+  if (state.champion) showChampion();
+  saveToStorage();
+}
+
+function resetDownstream(roundIdx, matchIdx) {
+  const bracket = state.bracket;
+  const match = bracket.rounds[roundIdx][matchIdx];
+  const oldWinner = match.winner;
+  match.winner = null;
+  if (roundIdx + 1 < bracket.rounds.length) {
+    const nextMi = Math.floor(matchIdx / 2);
+    const nextMatch = bracket.rounds[roundIdx + 1][nextMi];
+    const slot = matchIdx % 2 === 0 ? 'p1' : 'p2';
+    if (nextMatch[slot] && nextMatch[slot] === oldWinner) {
+      nextMatch[slot] = null;
+      resetDownstream(roundIdx + 1, nextMi);
+    }
+  } else {
+    state.champion = null;
+  }
+}
+
+function updateMatchDOM(r, mi) {
+  const match = state.bracket.rounds[r][mi];
+  const mDiv = document.querySelector(`.match[data-round="${r}"][data-match="${mi}"]`);
+  if (!mDiv) return;
+  const slots = mDiv.querySelectorAll('.match-slot');
+  const p1Slot = slots[0];
+  const p2Slot = slots[1];
+  updateSlot(p1Slot, match.p1, match.winner && match.winner === match.p1);
+  updateSlot(p2Slot, match.p2, match.winner && match.winner === match.p2);
+}
+
+function updateSlot(slot, player, isWinner) {
+  slot.classList.toggle('winner', isWinner);
+  slot.classList.toggle('empty', !player);
+  const nameEl = slot.querySelector('.slot-name');
+  nameEl.textContent = player ? player.name : '—';
+  // Обновляем звёзды если есть
+  const stars = slot.querySelector('.stars-mini');
+  if (stars) {
+    if (player) {
+      stars.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement('span');
+        s.className = 'star' + (i <= player.rating ? ' filled' : '');
+        s.textContent = '★';
+        stars.appendChild(s);
+      }
+    } else {
+      stars.innerHTML = '';
+    }
+  }
+}
+
+function updateNextMatches(roundIdx, matchIdx) {
+  // Проходим до финала, обновляя связанные матчи
+  let r = roundIdx, mi = matchIdx;
+  while (r + 1 < state.bracket.rounds.length) {
+    const nextMi = Math.floor(mi / 2);
+    updateMatchDOM(r + 1, nextMi);
+    r = r + 1;
+    mi = nextMi;
+  }
+  if (state.champion) showChampion();
+}
+
+function showChampion() {
+  const banner = document.getElementById('winnerBanner');
+  const nameEl = document.getElementById('championName');
+  banner.classList.add('show');
+  nameEl.innerHTML = `<span>${escapeHtml(state.champion.name)}</span>`;
+  // Добавляем звёзды
+  const stars = document.createElement('div');
+  stars.className = 'star-rating readonly';
+  for (let i = 1; i <= 5; i++) {
+    const s = document.createElement('span');
+    s.className = 'star' + (i <= state.champion.rating ? ' filled' : '');
+    s.textContent = '★';
+    stars.appendChild(s);
+  }
+  nameEl.appendChild(stars);
+}
+
+// ==================== ZOOM ====================
+function setZoom(z) {
+  state.zoom = Math.max(0.1, Math.min(2, z));
+  document.getElementById('zoomLabel').textContent = Math.round(state.zoom * 100) + '%';
+  document.getElementById('bracketContent').style.transform = `scale(${state.zoom})`;
+}
+document.getElementById('zoomIn').addEventListener('click', () => setZoom(state.zoom * 1.2));
+document.getElementById('zoomOut').addEventListener('click', () => setZoom(state.zoom / 1.2));
+document.getElementById('zoomReset').addEventListener('click', () => setZoom(1));
+
+document.getElementById('fitBtn').addEventListener('click', () => {
+  if (!state.bracket) return;
+  const viewport = document.getElementById('bracketViewport');
+  const content = document.getElementById('bracketContent');
+  // Сначала сбрасываем масштаб чтобы измерить реальный размер
+  content.style.transform = 'scale(1)';
+  const contentW = content.scrollWidth;
+  const contentH = content.scrollHeight;
+  const vW = viewport.clientWidth;
+  const vH = viewport.clientHeight;
+  const scale = Math.min(vW / contentW, vH / contentH, 1);
+  setZoom(scale);
+});
+
+// ==================== BRACKET SEARCH ====================
+const searchBracket = document.getElementById('searchBracket');
+searchBracket.addEventListener('input', () => {
+  const q = searchBracket.value.trim().toLowerCase();
+  // Снимаем подсветку
+  document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+  if (!q || !state.bracket) return;
+  // Ищем игроков в первом раунде (и далее)
+  for (const [name, locs] of bracketPlayerLocations) {
+    if (name.toLowerCase().includes(q)) {
+      locs.forEach(loc => {
+        const mDiv = document.querySelector(`.match[data-round="${loc.r}"][data-match="${loc.m}"]`);
+        if (mDiv) {
+          mDiv.classList.add('highlight');
+          // Скроллим к первому совпадению
+          if (locs.indexOf(loc) === 0) {
+            mDiv.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+          }
+        }
+      });
+      break; // только первое совпадение
+    }
+  }
+});
+
+// ==================== SAVE/LOAD ====================
+function saveToStorage() {
+  try {
+    const data = {
+      tournamentName: document.getElementById('tournamentName').value,
+      bracketSize: document.getElementById('bracketSize').value,
+      players: state.players,
+      bracket: state.bracket,
+      champion: state.champion
+    };
+    localStorage.setItem('tournament_v3', JSON.stringify(data));
+  } catch (e) {
+    // Молча игнорируем (например, при 10000+ команд может не хватить места)
+    console.warn('Не удалось сохранить:', e);
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('tournament_v3');
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data.players) return false;
+    state.players = data.players;
+    state.bracket = data.bracket;
+    state.champion = data.champion;
+    if (data.tournamentName) document.getElementById('tournamentName').value = data.tournamentName;
+    if (data.bracketSize) document.getElementById('bracketSize').value = data.bracketSize;
+    updatePlayerIndex();
+    return true;
+  } catch (e) {
+    console.warn('Не удалось загрузить:', e);
+    return false;
+  }
+}
+
+// ==================== BUTTONS ====================
+document.getElementById('generateBtn').addEventListener('click', () => {
+  state.tournamentName = document.getElementById('tournamentName').value.trim();
+  state.bracketSize = document.getElementById('bracketSize').value;
+  state.renderMode = document.getElementById('renderMode').value;
+  generateBracket('auto');
+});
+
+document.getElementById('seedBtn').addEventListener('click', () => {
+  if (state.players.length < 2) { showStatus('Добавьте минимум 2 команды', 'info'); return; }
+  state.bracketSize = document.getElementById('bracketSize').value;
+  state.players.sort((a, b) => b.rating - a.rating);
+  updatePlayerIndex();
+  filterPlayers();
+  generateBracket('seeded');
+});
+
+document.getElementById('randomizeBtn').addEventListener('click', () => {
+  if (state.players.length < 2) { showStatus('Добавьте минимум 2 команды', 'info'); return; }
+  state.bracketSize = document.getElementById('bracketSize').value;
+  state.players = shuffle(state.players);
+  updatePlayerIndex();
+  filterPlayers();
+  generateBracket('random');
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Сбросить турнир полностью (участники + сетка)?')) return;
+  state = { tournamentName: '', bracketSize: 'auto', renderMode: 'virtual', players: [], bracket: null, champion: null, zoom: 1 };
+  playerIndex.clear();
+  bracketPlayerLocations.clear();
+  document.getElementById('tournamentName').value = '';
+  document.getElementById('bracketSize').value = 'auto';
+  filterPlayers();
+  updateStats();
+  renderBracketView();
+  localStorage.removeItem('tournament_v3');
+});
+
+// ==================== INIT ====================
+(function init() {
+  const loaded = loadFromStorage();
+  if (!loaded) {
+    // Демо-данные
+    const demo = [
+      ['Иван', 5], ['Мария', 4], ['Алексей', 3], ['Ольга', 5],
+      ['Дмитрий', 2], ['Анна', 4], ['Сергей', 3], ['Елена', 1]
+    ];
+    demo.forEach(([name, rating]) => {
+      const p = { name, rating };
+      state.players.push(p);
+      playerIndex.set(name, p);
+    });
+  }
+  updatePlayerIndex();
+  filterPlayers();
+  updateStats();
+  if (state.bracket) {
+    buildBracketIndex();
+    renderBracketView();
+    if (state.champion) showChampion();
+  }
+})();
+</script>
+</body>
+</html>
